@@ -2,9 +2,21 @@
 
 API REST de um Jornal Online em ASP.NET Core .
 
-## 🔐 Autenticação
-
-Após o login, um token JWT é retornado. Esse token deve ser enviado no cabeçalho `Authorization` para acessar rotas protegidas.
+## ⚙️Para que o projeto funcione corretamente, crie um arquivo chamado appsettings.json na raiz do projeto com o seguinte conteúdo:
+```json
+{
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=databaseUri;Port=5432;Database=DabaseName;Username=postgres;Password=suasenhaaqui"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  }
+}
+```
 
 ---
 
