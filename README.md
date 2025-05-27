@@ -1,4 +1,4 @@
-# 🇧🇷 Bostil API
+# 🇧🇷 News-Paper-Api
 
 API REST de um Jornal Online em ASP.NET Core .
 
