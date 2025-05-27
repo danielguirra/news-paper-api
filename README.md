@@ -119,7 +119,7 @@ Authorization: Bearer JWT_TOKEN
 
 ## 🔧 Estrutura
 
--  `Models/`
+-  `Modules/`
    -  `User/`
       -  `UserModel.cs`
       -  `UserService.cs`
