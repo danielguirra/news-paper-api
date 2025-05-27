@@ -107,8 +107,6 @@ Authorization: Bearer JWT_TOKEN
 
 ## 🔧 Estrutura
 
--  `Auth/JwtStrategy/`
-   -  `TokenService.cs`
 -  `Models/`
    -  `User/`
       -  `UserModel.cs`
