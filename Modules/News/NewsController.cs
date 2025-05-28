@@ -41,7 +41,7 @@ public class NewsController(NewsService newsService, UserService userService) : 
     return edited is false ? BadRequest() : Ok(new { message = "Notícia atualizada." });
   }
 
-  [HttpDelete("{id:guid}/inactive")]
+  [HttpDelete("{id}/inactive")]
   public async Task<IActionResult> Inactivate(Guid id)
   {
     var auth = await Auth();
