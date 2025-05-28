@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 using Utils;
 
 namespace Models
 {
-  public class NewsModel : BaseModel
+  public class NewsBodyModel
   {
     [Required]
     [MaxLength(100)]
@@ -20,11 +19,5 @@ namespace Models
     [MaxLength(2000)]
     public required string Content { get; set; }
 
-    [Required]
-    public required Guid AuthorId { get; set; }
-
-    [ForeignKey(nameof(AuthorId))]
-
-    public UserModel? Author { get; set; }
   }
 }

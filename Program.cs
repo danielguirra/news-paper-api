@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Middlewares;
 
+using Modules.News;
 using Modules.User;
 
 using Utils;
@@ -25,6 +26,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddUserModule();
+builder.Services.AddNewsModule();
 
 var app = builder.Build();
 app.UseHttpsRedirection();

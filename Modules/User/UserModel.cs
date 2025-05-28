@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 using Utils;
 
@@ -26,6 +28,9 @@ namespace Models
     [MaxLength(6)]
     public string Role { get; set; } = "user";
 
+    [InverseProperty(nameof(NewsModel.Author))]
+    [JsonIgnore]
     public ICollection<NewsModel> News { get; set; } = new List<NewsModel>();
+
   }
 }

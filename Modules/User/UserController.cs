@@ -52,12 +52,12 @@ public class UserController(UserService service) : ControllerBase
         return StatusCode(201, new { token, message });
     }
 
-    // [HttpDelete]
-    // public async Task<IActionResult> Delete()
-    // {
-    //     await service.Clean();
-    //     return Ok();
-    // }
+    [HttpDelete]
+    public async Task<IActionResult> Delete()
+    {
+        await service.Clean();
+        return Ok();
+    }
 
     [HttpGet("me")]
     public async Task<IActionResult> Me()
