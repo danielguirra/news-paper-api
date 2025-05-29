@@ -20,7 +20,8 @@ namespace Services
           .Select(n => new NewsRecentsDto
           {
             Title = n.Title,
-            Subtitle = n.Subtitle,
+            Description = n.Description,
+            Thumbnail = n.Thumbnail,
             Id = n.Id,
             Active = n.Active,
             CreatedAt = n.CreatedAt,
@@ -33,8 +34,9 @@ namespace Services
       await context.News.Select(n => new NewsDto
       {
         Title = n.Title,
-        Subtitle = n.Subtitle,
+        Description = n.Description,
         Content = n.Content,
+        Thumbnail = n.Thumbnail,
         Author = new AuthorDto
         {
           Name = n.Author!.Name,
@@ -47,8 +49,23 @@ namespace Services
         UpdatedAt = n.UpdatedAt
       }).FirstOrDefaultAsync(n => n.Id == id);
 
-    public async Task<NewsModel?> GetOneByTitle(string title) =>
-      await context.News.FirstOrDefaultAsync(n => n.Title == title);
+    public async Task<List<NewsRecentsDto>?> GetByTitle(string title)
+    {
+      return await context.News
+        .Include(n => n.Author)
+        .Where(n => EF.Functions.ILike(n.Title, $"%{title}%"))
+        .OrderByDescending(n => n.CreatedAt)
+        .Select(n => new NewsRecentsDto
+        {
+          Title = n.Title,
+          Description = n.Description,
+          Thumbnail = n.Thumbnail,
+          Id = n.Id,
+          Active = n.Active,
+          CreatedAt = n.CreatedAt,
+        })
+        .ToListAsync();
+    }
 
     public async Task<NewsModel?> Create(NewsModel news)
     {
@@ -68,7 +85,7 @@ namespace Services
       if (findNews == null) return false;
 
       findNews.Title = news.Title;
-      findNews.Subtitle = news.Subtitle;
+      findNews.Description = news.Description;
       findNews.Content = news.Content;
       findNews.UpdatedAt = DateTime.UtcNow;
 

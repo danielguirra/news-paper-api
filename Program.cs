@@ -25,8 +25,11 @@ builder.Services.AddControllers(options =>
     options.Filters.Add<ValidateModelAndHandleErrorsFilter>();
 });
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddUserModule();
 builder.Services.AddNewsModule();
+builder.Services.AddAuthModule();
 
 var app = builder.Build();
 app.UseHttpsRedirection();

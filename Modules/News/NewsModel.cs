@@ -14,7 +14,11 @@ namespace Models
 
     [Required]
     [MaxLength(255)]
-    public required string Subtitle { get; set; }
+    public required string Description { get; set; }
+
+    [Required]
+    [MaxLength(255)]
+    public required string Thumbnail { get; set; }
 
     [Required]
     [MaxLength(2000)]

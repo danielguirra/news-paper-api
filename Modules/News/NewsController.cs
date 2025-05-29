@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Models;
-using Models.AuthModel;
 
 using Services;
 
@@ -9,12 +8,12 @@ namespace Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class NewsController(NewsService newsService, UserService userService) : ControllerBase
+public class NewsController(NewsService newsService, AuthService authService) : ControllerBase
 {
   [HttpPost]
   public async Task<IActionResult> Create(NewsBodyModel newsBody)
   {
-    var auth = await Auth();
+    var auth = await authService.GetAuthUser();
     if (auth == null)
       return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
 
@@ -23,8 +22,9 @@ public class NewsController(NewsService newsService, UserService userService) : 
     var created = await newsService.Create(new NewsModel
     {
       Title = newsBody.Title,
-      Subtitle = newsBody.Subtitle,
+      Description = newsBody.Description,
       Content = newsBody.Content,
+      Thumbnail = newsBody.Thumbnail,
       AuthorId = auth.Id,
     });
     return created is null ? BadRequest() : Created("", new { created.Id });
@@ -33,8 +33,8 @@ public class NewsController(NewsService newsService, UserService userService) : 
   [HttpPut]
   public async Task<IActionResult> Edit(NewsModel news)
   {
-    var auth = await Auth();
-    if (auth == null)
+
+    if (await authService.GetAuthUser() == null)
       return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
 
     var edited = await newsService.Edit(news);
@@ -44,8 +44,8 @@ public class NewsController(NewsService newsService, UserService userService) : 
   [HttpDelete("{id}/inactive")]
   public async Task<IActionResult> Inactivate(Guid id)
   {
-    var auth = await Auth();
-    if (auth == null)
+
+    if (await authService.GetAuthUser() == null)
       return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
 
     var result = await newsService.Inactive(id);
@@ -56,7 +56,7 @@ public class NewsController(NewsService newsService, UserService userService) : 
   public async Task<IActionResult> GetRecents([FromQuery] int take = 10, [FromQuery] int skip = 0)
   {
     var list = await newsService.Recents(take, skip);
-    return list.Any() ? Ok(list) : NotFound(new { message = "Nenhuma notícia encontrada." });
+    return list.Count != 0 ? Ok(list) : NotFound(new { message = "Nenhuma notícia encontrada." });
   }
 
   [HttpGet("{id}")]
@@ -69,18 +69,10 @@ public class NewsController(NewsService newsService, UserService userService) : 
   [HttpGet("title/{title}")]
   public async Task<IActionResult> GetByTitle(string title)
   {
-    var news = await newsService.GetOneByTitle(title);
+    var news = await newsService.GetByTitle(title);
     return news is null ? NotFound() : Ok(news);
   }
 
-  private async Task<AuthModel?> Auth()
-  {
-    var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-    if (authHeader == null || !authHeader.StartsWith("Bearer ")) return null;
-
-    var token = authHeader.Substring("Bearer ".Length).Trim();
-    return await userService.Me(token);
-  }
 
   [HttpDelete]
   public async Task<IActionResult> Delete()

@@ -3,8 +3,9 @@ namespace Dto
   public class NewsDto
   {
     public required string Title { get; set; }
-    public required string Subtitle { get; set; }
+    public required string Description { get; set; }
     public required string Content { get; set; }
+    public required string Thumbnail { get; set; }
     public required AuthorDto Author { get; set; }
     public Guid Id { get; set; }
     public bool Active { get; set; }
@@ -15,7 +16,8 @@ namespace Dto
   public class NewsRecentsDto
   {
     public required string Title { get; set; }
-    public required string Subtitle { get; set; }
+    public required string Description { get; set; }
+    public required string Thumbnail { get; set; }
     public Guid Id { get; set; }
     public bool Active { get; set; }
     public DateTime CreatedAt { get; set; }

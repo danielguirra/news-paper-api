@@ -1,6 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 
 using Models;
-using Microsoft.EntityFrameworkCore;
+
 using Utils;
 
 namespace Data

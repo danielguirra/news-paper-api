@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
 using Models;
-using Models.AuthModel;
 
 using Services;
 
@@ -10,7 +9,7 @@ namespace Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class UserController(UserService service) : ControllerBase
+public class UserController(UserService service, AuthService authService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(UserModel user)
@@ -25,8 +24,8 @@ public class UserController(UserService service) : ControllerBase
     public async Task<IActionResult> Edit(UserModel user)
 
     {
-        var auth = await Auth();
-        if (auth == null)
+
+        if (await authService.GetAuthUser() == null)
             return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
 
         var edited = await service.Edit(user);
@@ -62,24 +61,11 @@ public class UserController(UserService service) : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
-        var auth = await Auth();
+        var auth = await authService.GetAuthUser();
         if (auth == null)
             return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
 
         return Ok(auth);
-    }
-
-    private async Task<AuthModel?> Auth()
-    {
-        var authHeader = HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-
-        if (authHeader == null || !authHeader.StartsWith("Bearer ")) return null;
-
-        var token = authHeader.Substring("Bearer ".Length).Trim();
-
-        var auth = await service.Me(token);
-
-        return auth;
     }
 
 }
