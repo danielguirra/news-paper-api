@@ -1,13 +1,11 @@
-using Services;
+namespace Modules.Auth;
 
-namespace Modules.News;
-
-public static class AuthModel
+public static class AuthModule
 {
-  public static IServiceCollection AddAuthModule(this IServiceCollection services)
-  {
-    services.AddScoped<AuthService>();
+    public static IServiceCollection AddAuthModule(this IServiceCollection services)
+    {
+        services.AddScoped<AuthService>();
 
-    return services;
-  }
+        return services;
+    }
 }

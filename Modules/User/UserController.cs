@@ -1,33 +1,27 @@
 using Microsoft.AspNetCore.Mvc;
-
 using Models;
+using Modules.Auth;
 
-using Services;
-
-namespace Controllers;
+namespace Modules.User;
 
 [ApiController]
 [Route("api/[controller]")]
-
 public class UserController(UserService service, AuthService authService) : ControllerBase
 {
     [HttpPost]
     public async Task<IActionResult> Create(UserModel user)
     {
-        if (await service.Exists(user)) return Conflict("Verifique o email ou nome do usuário");
+        if (await service.Exists(user))
+            return Conflict("Verifique o email ou nome do usuário");
 
         var created = await service.Create(user);
         return created is null ? BadRequest() : Created("", new { created.Id });
     }
 
     [HttpPut]
-    public async Task<IActionResult> Edit(UserModel user)
-
+    [AuthRequired]
+    public async Task<IActionResult> Edit(EditUserDto user)
     {
-
-        if (await authService.GetAuthUser() == null)
-            return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
-
         var edited = await service.Edit(user);
         return edited is false ? BadRequest() : Created();
     }
@@ -42,7 +36,7 @@ public class UserController(UserService service, AuthService authService) : Cont
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginModel login)
     {
-        var token = await service.Login(login);
+        var token = await service.GetTokenAsync(login);
 
         if (token == null)
             return Unauthorized("Email ou senha incorretos");
@@ -51,14 +45,23 @@ public class UserController(UserService service, AuthService authService) : Cont
         return StatusCode(201, new { token, message });
     }
 
-    [HttpDelete]
-    public async Task<IActionResult> Delete()
+    // [HttpDelete]
+    // public async Task<IActionResult> Delete()
+    // {
+    //     await service.Clean();
+    //     return Ok();
+    // }
+
+    [HttpDelete("{id}/inactive")]
+    [AuthRequired]
+    public async Task<IActionResult> Inactive(Guid id)
     {
-        await service.Clean();
-        return Ok();
+        var result = await service.Inactive(id);
+        return result is null ? NotFound() : Ok(new { message = "Usuario inativado." });
     }
 
     [HttpGet("me")]
+    [AuthRequired]
     public async Task<IActionResult> Me()
     {
         var auth = await authService.GetAuthUser();
@@ -67,5 +70,4 @@ public class UserController(UserService service, AuthService authService) : Cont
 
         return Ok(auth);
     }
-
 }
