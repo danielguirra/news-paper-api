@@ -37,6 +37,13 @@ namespace Models
         public DateTime CreatedAt { get; set; }
     }
 
+    public class NewsOnCategoryDto
+    {
+        public required string Title { get; set; }
+        public Guid Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
     public class CategoryDto
     {
         public Guid Id { get; set; }

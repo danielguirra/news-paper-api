@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Utils;
 
+namespace Models;
+
 public class CategoryBodyModel
 {
     [Required]

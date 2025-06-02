@@ -1,4 +1,5 @@
 using Data;
+using Exceptions;
 using Microsoft.EntityFrameworkCore;
 using Models;
 
@@ -8,9 +9,10 @@ namespace Modules.News
     {
         public async Task<List<NewsRecentsDto>> Recents(int take = 10, int skip = 0)
         {
-            return await context
+            var recents = await context
                 .News.Include(n => n.Author)
                 .Include(n => n.Category)
+                .Where(n => n.Active)
                 .OrderByDescending(n => n.CreatedAt)
                 .Skip(skip)
                 .Take(take)
@@ -24,11 +26,20 @@ namespace Modules.News
                     CreatedAt = n.CreatedAt,
                 })
                 .ToListAsync();
+
+            if (recents.Count == 0)
+                throw new NewsNotFoundException(null);
+
+            return recents;
         }
 
-        public async Task<NewsDto?> GetOneById(Guid id) =>
-            await context
-                .News.Select(n => new NewsDto
+        public async Task<NewsDto> GetOneById(Guid id)
+        {
+            var news = await context
+                .News.Where(n => n.Active)
+                .Include(n => n.Author)
+                .Include(n => n.Category)
+                .Select(n => new NewsDto
                 {
                     Title = n.Title,
                     Description = n.Description,
@@ -48,11 +59,14 @@ namespace Modules.News
                 })
                 .FirstOrDefaultAsync(n => n.Id == id);
 
-        public async Task<List<NewsRecentsDto>?> GetByTitle(string title)
+            return news ?? throw new NewsNotFoundException(id);
+        }
+
+        public async Task<List<NewsRecentsDto>> GetByTitle(string title)
         {
-            return await context
+            var news = await context
                 .News.Include(n => n.Author)
-                .Where(n => EF.Functions.ILike(n.Title, $"%{title}%"))
+                .Where(n => EF.Functions.ILike(n.Title, $"%{title}%") && n.Active)
                 .OrderByDescending(n => n.CreatedAt)
                 .Select(n => new NewsRecentsDto
                 {
@@ -64,23 +78,39 @@ namespace Modules.News
                     CreatedAt = n.CreatedAt,
                 })
                 .ToListAsync();
+
+            if (news.Count == 0)
+                throw new NewsNotFoundException(null);
+
+            return news;
         }
 
-        public async Task<NewsModel?> Create(NewsModel news)
+        public async Task<NewsModel> Create(NewsModel news)
         {
+            if (!await AliveCategory(news.CategoryId))
+                throw new InvalidNewsCategoryException(news.CategoryId);
+
+            if (await Exists(news.Title))
+                throw new ConflictNewsException(news.Title);
+
             context.News.Add(news);
             var saved = await context.SaveChangesAsync();
-            return saved > 0 ? news : null;
+
+            if (saved == 0)
+                throw new InternalNewsException();
+
+            return news;
         }
+
+        public async Task<bool> AliveCategory(Guid id) =>
+            await context.Categories.AnyAsync(c => c.Id == id);
 
         public async Task<bool> Exists(string title) =>
             await context.News.AnyAsync(n => n.Title == title);
 
-        public async Task<bool> Edit(EditNewsDto dto)
+        public async Task Edit(EditNewsDto dto)
         {
-            var findNews = await context.News.FirstOrDefaultAsync(n => n.Id == dto.Id);
-            if (findNews == null)
-                return false;
+            var findNews = await GetNewsOrThrow(dto.Id);
 
             if (!string.IsNullOrWhiteSpace(dto.Title))
                 findNews.Title = dto.Title;
@@ -104,28 +134,32 @@ namespace Modules.News
 
             context.News.Update(findNews);
             await context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<NewsModel?> Inactive(Guid id)
+        public async Task Inactive(Guid id)
         {
-            var news = await context.News.FirstOrDefaultAsync(n => n.Id == id);
-            if (news is null)
-                return null;
+            var news = await GetNewsOrThrow(id);
 
             news.Active = false;
             context.News.Update(news);
 
             var changes = await context.SaveChangesAsync();
-            return changes > 0 ? news : null;
+            if (changes == 0)
+                throw new InternalNewsException();
         }
 
+        // Não implementado, apenas teste
         public async Task Clean()
         {
             var news = await context.News.ToListAsync();
             context.News.RemoveRange(news);
             await context.SaveChangesAsync();
+        }
+
+        private async Task<NewsModel> GetNewsOrThrow(Guid id)
+        {
+            var news = await context.News.FirstOrDefaultAsync(n => n.Id == id);
+            return news ?? throw new NewsNotFoundException(id);
         }
     }
 }

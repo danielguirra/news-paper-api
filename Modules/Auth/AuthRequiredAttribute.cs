@@ -1,17 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Modules.Auth;
+
+namespace Modules.Auth;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
-public class AuthRequiredAttribute : Attribute, IAsyncAuthorizationFilter
+public class AuthRequiredAttribute(params string[] roles) : Attribute, IAsyncAuthorizationFilter
 {
-    private readonly string[] _roles;
-
-    public AuthRequiredAttribute(params string[] roles)
-    {
-        _roles = roles;
-    }
-
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
         var authService = context.HttpContext.RequestServices.GetService<AuthService>();
@@ -25,7 +19,10 @@ public class AuthRequiredAttribute : Attribute, IAsyncAuthorizationFilter
             return;
         }
 
-        if (_roles.Length > 0 && !_roles.Contains(auth.Role))
+        if (auth.Role == "boss" || auth.Role == "admin")
+            return;
+
+        if (roles.Length > 0 && !roles.Contains(auth.Role))
         {
             context.Result = new ObjectResult(
                 new { message = "Você não tem permissão para acessar este recurso." }

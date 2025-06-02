@@ -1,4 +1,5 @@
 using Data;
+using Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -8,55 +9,69 @@ namespace Modules.User
 {
     public class UserService(AppDbContext context)
     {
-        public async Task<bool> Exists(UserModel user) =>
-            await context.Users.AnyAsync(_user =>
-                _user.Email == user.Email || _user.Name == user.Name
-            );
+        public async Task<bool> Exists(string email, string name) =>
+            await context.Users.AnyAsync(u => u.Email == email || u.Name == name);
 
         private async Task<UserModel?> GetByEmail(string email) =>
-            await context.Users.FirstOrDefaultAsync(_user => _user.Email == email);
+            await context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-        public async Task<UserModel?> Create(UserModel user)
+        private async Task<UserModel> GetByIdOrThrow(Guid id)
         {
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
+            if (user == null)
+                throw new UserNotFoundException(id);
+            return user;
+        }
+
+        public async Task<UserModel> Create(UserModel user, AuthModel? auth)
+        {
+            if (await Exists(user.Email, user.Name))
+                throw new UserConflictException($"{user.Email} / {user.Name}");
+
+            if (auth != null)
+                if (user.Role != null && user.Role != auth.Role)
+                {
+                    ValidateRolePermission(auth.Role, user.Role);
+                }
+
             var passwordHasher = new PasswordHasher<UserModel>();
             user.Password = passwordHasher.HashPassword(user, user.Password);
             context.Users.Add(user);
             var saved = await context.SaveChangesAsync();
-            return saved > 0 ? user : null;
+
+            if (saved == 0)
+                throw new InternalUserException();
+
+            return user;
         }
 
         public async Task<List<UserModel>> ListAll() =>
             await context.Users.OrderBy(u => u.Role).ToListAsync();
 
-        public async Task<bool?> Login(LoginModel login)
+        public async Task<bool> ValidateCredentials(LoginModel login)
         {
             var user = await GetByEmail(login.Email);
             if (user == null)
-                return false;
+                throw new InvalidUserCredentialsException();
 
             var passwordHasher = new PasswordHasher<UserModel>();
             var verify = passwordHasher.VerifyHashedPassword(user, user.Password, login.Password);
 
             if (verify == PasswordVerificationResult.Failed)
-                return false;
+                throw new InvalidUserCredentialsException();
 
             return true;
         }
 
-        public async Task<string?> GetTokenAsync(LoginModel login)
+        public async Task<string> GetTokenAsync(LoginModel login)
         {
+            await ValidateCredentials(login);
+
             var user = await GetByEmail(login.Email);
             if (user == null)
-                return null;
-
-            var passwordHasher = new PasswordHasher<UserModel>();
-            var verify = passwordHasher.VerifyHashedPassword(user, user.Password, login.Password);
-
-            if (verify == PasswordVerificationResult.Failed)
-                return null;
+                throw new UserNotFoundException(null);
 
             string token = TokenService.GetToken(user);
-
             return token;
         }
 
@@ -67,28 +82,29 @@ namespace Modules.User
             await context.SaveChangesAsync();
         }
 
-        public async Task<AuthModel?> Me(string token)
+        public async Task<AuthModel> Me(string token)
         {
-            AuthModel? auth = TokenService.ValidateToken(token);
-            if (auth != null)
-            {
-                var user = await context.Users.FirstOrDefaultAsync(_user => _user.Id == auth.Id);
-                if (user != null)
-                {
-                    return auth;
-                }
-            }
+            var auth = TokenService.ValidateToken(token);
+            if (auth == null)
+                throw new InvalidUserCredentialsException();
 
-            return null;
+            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == auth.Id);
+            if (user == null)
+                throw new UserNotFoundException(auth.Id);
+
+            return auth;
         }
 
-        public async Task<bool> Edit(EditUserDto dto)
+        public async Task Edit(EditUserDto dto, AuthModel auth)
         {
-            var findUser = await context.Users.FirstOrDefaultAsync(_user => _user.Id == dto.Id);
+            var findUser = await GetByIdOrThrow(dto.Id);
 
-            if (findUser == null)
-                return false;
+            if (dto.Role != null && dto.Role != auth.Role)
+            {
+                ValidateRolePermission(auth.Role, dto.Role);
 
+                findUser.Role = dto.Role;
+            }
             if (
                 !string.IsNullOrWhiteSpace(dto.Password)
                 && !string.IsNullOrWhiteSpace(dto.NewPassword)
@@ -96,8 +112,8 @@ namespace Modules.User
             {
                 var login = new LoginModel { Email = findUser.Email, Password = dto.Password };
 
-                if (!(await Login(login)).GetValueOrDefault())
-                    return false;
+                if (!await ValidateCredentials(login))
+                    throw new InvalidUserCredentialsException();
 
                 var passwordHasher = new PasswordHasher<UserModel>();
                 findUser.Password = passwordHasher.HashPassword(findUser, dto.NewPassword);
@@ -109,28 +125,29 @@ namespace Modules.User
             if (!string.IsNullOrWhiteSpace(dto.Name))
                 findUser.Name = dto.Name;
 
-            if (!string.IsNullOrWhiteSpace(dto.Role))
-                findUser.Role = dto.Role;
-
             findUser.UpdatedAt = DateTime.UtcNow;
 
             context.Users.Update(findUser);
             await context.SaveChangesAsync();
-
-            return true;
         }
 
-        public async Task<UserModel?> Inactive(Guid id)
+        public async Task Inactivate(Guid id)
         {
-            var user = await context.Users.FirstOrDefaultAsync(_user => _user.Id == id);
-            if (user is null)
-                return null;
+            var user = await GetByIdOrThrow(id);
 
             user.Active = false;
             context.Users.Update(user);
 
             var changes = await context.SaveChangesAsync();
-            return changes > 0 ? user : null;
+
+            if (changes == 0)
+                throw new InternalUserException();
+        }
+
+        private static void ValidateRolePermission(string authRole, string userRole)
+        {
+            if (Roles.GetLevel(authRole) < 3 || Roles.GetLevel(userRole) == 0)
+                throw new PermissionForbiddenUserExcepion();
         }
     }
 }
