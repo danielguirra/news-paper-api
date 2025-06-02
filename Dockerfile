@@ -14,9 +14,9 @@ WORKDIR /app
 
 COPY --from=build /app/out ./
 
-# Copia o entrypoint
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
+RUN sed -i 's/\r$//' entrypoint.sh
 
 EXPOSE 80
 ENTRYPOINT ["./entrypoint.sh"]
