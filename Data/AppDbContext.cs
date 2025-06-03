@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Modules.Category;
+using Modules.Comments;
 using Modules.News;
 using Modules.User;
 using Utils;
@@ -11,6 +12,8 @@ namespace Data
         public DbSet<NewsModel> News => Set<NewsModel>();
         public DbSet<UserModel> Users => Set<UserModel>();
         public DbSet<CategoryModel> Categories => Set<CategoryModel>();
+        public DbSet<CommentModel> Comments => Set<CommentModel>();
+        public DbSet<CommentReactionModel> CommentReactions => Set<CommentReactionModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

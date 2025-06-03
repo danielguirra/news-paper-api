@@ -5,7 +5,7 @@ using Models;
 
 namespace Modules.Category;
 
-public class CategoryService(AppDbContext context)
+public class CategoryService(AppDbContext context) : BaseService(context)
 {
     public async Task<List<NewsOnCategoryDto>> GetManyNewsOnCategoryId(Guid id)
     {
@@ -53,9 +53,10 @@ public class CategoryService(AppDbContext context)
             throw new ConflictCategoryException(category.Name);
 
         context.Categories.Add(category);
-        var saved = await context.SaveChangesAsync();
 
-        return saved > 0 ? category : throw new InternalCategoryException();
+        await SaveAsync();
+
+        return category;
     }
 
     public async Task Inactive(Guid id)
@@ -69,6 +70,6 @@ public class CategoryService(AppDbContext context)
         findCategory.UpdatedAt = DateTime.UtcNow;
 
         context.Categories.Update(findCategory);
-        await context.SaveChangesAsync();
+        await SaveAsync();
     }
 }

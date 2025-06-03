@@ -7,7 +7,7 @@ using Modules.Auth;
 
 namespace Modules.User
 {
-    public class UserService(AppDbContext context)
+    public class UserService(AppDbContext context) : BaseService(context)
     {
         public async Task<bool> Exists(string email, string name) =>
             await context.Users.AnyAsync(u => u.Email == email || u.Name == name);
@@ -37,10 +37,7 @@ namespace Modules.User
             var passwordHasher = new PasswordHasher<UserModel>();
             user.Password = passwordHasher.HashPassword(user, user.Password);
             context.Users.Add(user);
-            var saved = await context.SaveChangesAsync();
-
-            if (saved == 0)
-                throw new InternalUserException();
+            await SaveAsync();
 
             return user;
         }
@@ -79,7 +76,7 @@ namespace Modules.User
         {
             var users = await context.Users.ToListAsync();
             context.Users.RemoveRange(users);
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
 
         public async Task<AuthModel> Me(string token)
@@ -128,7 +125,7 @@ namespace Modules.User
             findUser.UpdatedAt = DateTime.UtcNow;
 
             context.Users.Update(findUser);
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
 
         public async Task Inactivate(Guid id)
@@ -138,10 +135,7 @@ namespace Modules.User
             user.Active = false;
             context.Users.Update(user);
 
-            var changes = await context.SaveChangesAsync();
-
-            if (changes == 0)
-                throw new InternalUserException();
+            await SaveAsync();
         }
 
         private static void ValidateRolePermission(string authRole, string userRole)

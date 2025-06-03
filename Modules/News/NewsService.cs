@@ -5,10 +5,12 @@ using Models;
 
 namespace Modules.News
 {
-    public class NewsService(AppDbContext context)
+    public class NewsService(AppDbContext context) : BaseService(context)
     {
         public async Task<List<NewsRecentsDto>> Recents(int take = 10, int skip = 0)
         {
+            if (take <= 0 || skip < 0)
+                throw new BadRequestTakeSkip();
             var recents = await context
                 .News.Include(n => n.Author)
                 .Include(n => n.Category)
@@ -94,10 +96,7 @@ namespace Modules.News
                 throw new ConflictNewsException(news.Title);
 
             context.News.Add(news);
-            var saved = await context.SaveChangesAsync();
-
-            if (saved == 0)
-                throw new InternalNewsException();
+            await SaveAsync();
 
             return news;
         }
@@ -133,7 +132,7 @@ namespace Modules.News
             findNews.UpdatedAt = DateTime.UtcNow;
 
             context.News.Update(findNews);
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
 
         public async Task Inactive(Guid id)
@@ -143,9 +142,7 @@ namespace Modules.News
             news.Active = false;
             context.News.Update(news);
 
-            var changes = await context.SaveChangesAsync();
-            if (changes == 0)
-                throw new InternalNewsException();
+            await SaveAsync();
         }
 
         // Não implementado, apenas teste
@@ -153,7 +150,7 @@ namespace Modules.News
         {
             var news = await context.News.ToListAsync();
             context.News.RemoveRange(news);
-            await context.SaveChangesAsync();
+            await SaveAsync();
         }
 
         private async Task<NewsModel> GetNewsOrThrow(Guid id)

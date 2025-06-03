@@ -18,6 +18,10 @@ public class ExceptionHandlingMiddleware(
         {
             var code = 500;
             var message = "Erro interno do servidor";
+            if (ex.Message != null)
+            {
+                message = ex.Message;
+            }
 
             if (ex is IHasHttpCode httpCode)
             {

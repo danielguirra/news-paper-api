@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Middlewares;
 using Modules.Auth;
 using Modules.Category;
+using Modules.Comments;
 using Modules.News;
 using Modules.User;
 using Utils;
@@ -29,6 +30,7 @@ builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddUserModule();
 builder.Services.AddNewsModule();
+builder.Services.AddCommentModule();
 builder.Services.AddCategoryModule();
 builder.Services.AddAuthModule();
 

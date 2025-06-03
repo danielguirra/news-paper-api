@@ -24,4 +24,9 @@ namespace Exceptions
     {
         public int Code => 500;
     }
+
+    public class BadRequestCategory() : Exception("Erro na requisicao categoria."), IHasHttpCode
+    {
+        public int Code => 401;
+    }
 }
