@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using Models;
 using Modules.News;
 using Modules.User;
@@ -30,5 +31,14 @@ namespace Modules.Comments
 
         [Required]
         public required int DisLikes { get; set; } = 0;
+
+        [AllowNull]
+        public Guid? ParentCommentId { get; set; }
+
+        [ForeignKey(nameof(ParentCommentId))]
+        public CommentModel? ParentComment { get; set; } // Navegação para o comentário pai
+
+        [AllowNull]
+        public ICollection<CommentModel>? Replies { get; set; }
     }
 }

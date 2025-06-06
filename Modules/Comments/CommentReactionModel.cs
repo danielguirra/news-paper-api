@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Models;
-using Modules.Comments;
 using Modules.User;
+
+namespace Modules.Comments;
 
 public class CommentReactionModel : BaseModel
 {

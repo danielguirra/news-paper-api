@@ -26,7 +26,7 @@ namespace Exceptions
     }
 
     public class AlreadyLikedException()
-        : Exception("Noticia já recebeu um like/dislike "),
+        : Exception("Isso já recebeu um like/dislike "),
             IHasHttpCode
     {
         public int Code => 409;

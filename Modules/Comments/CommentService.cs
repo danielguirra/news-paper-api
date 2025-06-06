@@ -10,9 +10,11 @@ namespace Modules.Comments
         public async Task<CommentModel> Create(CommentModel commet)
         {
             if (!await AliveNews(commet.NewsId))
-            {
-                throw new NewsNotFoundException(commet.Id);
-            }
+                throw new NewsNotFoundException(commet.NewsId);
+
+            if (commet.ParentCommentId != null)
+                if (!await GetCommentToReply((Guid)commet.ParentCommentId))
+                    throw new CommentNotFoundException(commet.ParentCommentId);
 
             context.Comments.Add(commet);
             await SaveAsync();
@@ -21,6 +23,11 @@ namespace Modules.Comments
         }
 
         private async Task<bool> AliveNews(Guid id) => await context.News.AnyAsync(n => n.Id == id);
+
+        private async Task<bool> GetCommentToReply(Guid id) =>
+            await context.Comments.AnyAsync(n =>
+                n.Id == id && n.Active && n.ParentCommentId == null
+            );
 
         public async Task<List<CommentNewsDto>> ListCommentsByNewsId(Guid id, int take, int skip)
         {
@@ -46,20 +53,16 @@ namespace Modules.Comments
                 .ToListAsync();
 
             if (comments.Count == 0)
-            {
                 throw new CommentNotFoundException(null);
-            }
+
             return comments;
         }
 
         public async Task Inactive(Guid id)
         {
-            var findComment = await context.Comments.FirstOrDefaultAsync(c => c.Id == id);
-            if (findComment == null)
-            {
-                throw new CommentNotFoundException(id);
-            }
-
+            var findComment =
+                await context.Comments.FirstOrDefaultAsync(c => c.Id == id)
+                ?? throw new CommentNotFoundException(id);
             findComment.Active = false;
             findComment.UpdatedAt = DateTime.UtcNow;
             context.Comments.Update(findComment);

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -18,6 +19,15 @@ public class AuthRequiredAttribute(params string[] roles) : Attribute, IAsyncAut
             );
             return;
         }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, auth.Id.ToString()),
+            new Claim(ClaimTypes.Name, auth.Name),
+            new Claim(ClaimTypes.Role, auth.Role),
+        };
+        var userIdentity = new ClaimsIdentity(claims, "AuthModel"); //
+        context.HttpContext.User = new ClaimsPrincipal(userIdentity);
 
         if (auth.Role == "boss" || auth.Role == "admin")
             return;

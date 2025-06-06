@@ -23,6 +23,11 @@ namespace Exceptions
         public int Code => 401;
     }
 
+    public class InvalidUserTokenException() : Exception("Token invalido"), IHasHttpCode
+    {
+        public int Code => 401;
+    }
+
     public class InternalUserException()
         : Exception("Erro interno ao processar usuário."),
             IHasHttpCode
@@ -34,6 +39,6 @@ namespace Exceptions
         : Exception("Você não tem permissão para definir esse nível de acesso."),
             IHasHttpCode
     {
-        public int Code => 400;
+        public int Code => 403;
     }
 }

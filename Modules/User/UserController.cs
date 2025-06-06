@@ -7,13 +7,13 @@ namespace Modules.User;
 
 [ApiController]
 [Route("api/[controller]")]
-public class UserController(UserService service, AuthService authService) : ControllerBase
+public class UserController(UserService service) : ControllerBase
 {
     [HttpPost]
     [AllowAnonymous]
     public async Task<IActionResult> Create(UserModel newUser)
     {
-        var auth = await authService.GetAuthUser();
+        var auth = User.ToAuthModel();
         if (auth == null)
         {
             newUser.Role = "user";
@@ -26,8 +26,7 @@ public class UserController(UserService service, AuthService authService) : Cont
     [AuthRequired]
     public async Task<IActionResult> Edit(EditUserDto user)
     {
-        var auth = await authService.GetAuthUser();
-        await service.Edit(user, auth!);
+        await service.Edit(user, User.ToAuthModel());
         return Ok(new { message = "Usuário editado." });
     }
 
@@ -48,9 +47,8 @@ public class UserController(UserService service, AuthService authService) : Cont
 
     [HttpGet("me")]
     [AuthRequired]
-    public async Task<IActionResult> Me()
+    public IActionResult Me()
     {
-        var auth = await authService.GetAuthUser();
-        return Ok(auth);
+        return Ok(User.ToAuthModel());
     }
 }

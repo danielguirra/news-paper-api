@@ -6,16 +6,12 @@ namespace Modules.News;
 
 [ApiController]
 [Route("api/[controller]")]
-public class NewsController(NewsService newsService, AuthService authService) : ControllerBase
+public class NewsController(NewsService newsService) : ControllerBase
 {
     [HttpPost]
     [AuthRequired("author")]
     public async Task<IActionResult> Create(NewsBodyModel newsBody)
     {
-        var auth = await authService.GetAuthUser();
-        if (auth == null)
-            return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
-
         var created = await newsService.Create(
             new NewsModel
             {
@@ -24,7 +20,7 @@ public class NewsController(NewsService newsService, AuthService authService) : 
                 Content = newsBody.Content,
                 Thumbnail = newsBody.Thumbnail,
                 CategoryId = newsBody.CategoryId,
-                AuthorId = auth.Id,
+                AuthorId = User.ToAuthModel().Id,
             }
         );
 

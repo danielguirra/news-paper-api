@@ -81,14 +81,10 @@ namespace Modules.User
 
         public async Task<AuthModel> Me(string token)
         {
-            var auth = TokenService.ValidateToken(token);
-            if (auth == null)
-                throw new InvalidUserCredentialsException();
-
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == auth.Id);
-            if (user == null)
-                throw new UserNotFoundException(auth.Id);
-
+            var auth = TokenService.ValidateToken(token) ?? throw new InvalidUserTokenException();
+            var user =
+                await context.Users.FirstOrDefaultAsync(u => u.Id == auth.Id)
+                ?? throw new UserNotFoundException(auth.Id);
             return auth;
         }
 

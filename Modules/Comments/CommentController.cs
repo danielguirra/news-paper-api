@@ -6,7 +6,7 @@ namespace Modules.Comments;
 
 [ApiController]
 [Route("api/news/{newsId}/comments")]
-public class CommentController(CommentService service, AuthService authService) : ControllerBase
+public class CommentController(CommentService service) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List(Guid newsId, int skip = 0, int take = 10)
@@ -18,10 +18,6 @@ public class CommentController(CommentService service, AuthService authService) 
     [HttpPost]
     public async Task<IActionResult> Create(Guid newsId, [FromBody] CreateCommentDto dto)
     {
-        var auth = await authService.GetAuthUser();
-        if (auth == null)
-            return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
-
         var comment = await service.Create(
             new CommentModel
             {
@@ -29,7 +25,25 @@ public class CommentController(CommentService service, AuthService authService) 
                 Content = dto.Content,
                 Likes = 0,
                 DisLikes = 0,
-                AuthorId = auth.Id,
+                AuthorId = User.ToAuthModel().Id,
+            }
+        );
+
+        return Created($"api/comments/{comment.Id}", comment);
+    }
+
+    [HttpPost("{id}/replies")]
+    public async Task<IActionResult> Reply(Guid newsId, Guid id, [FromBody] CreateCommentDto dto)
+    {
+        var comment = await service.Create(
+            new CommentModel
+            {
+                NewsId = newsId,
+                Content = dto.Content,
+                ParentCommentId = id,
+                Likes = 0,
+                DisLikes = 0,
+                AuthorId = User.ToAuthModel().Id,
             }
         );
 
@@ -48,10 +62,7 @@ public class CommentController(CommentService service, AuthService authService) 
     [AuthRequired("user")]
     public async Task<IActionResult> Like(Guid id)
     {
-        var auth = await authService.GetAuthUser();
-        if (auth == null)
-            return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
-        await service.Like(id, auth.Id);
+        await service.Like(id, User.ToAuthModel().Id);
         return Ok();
     }
 
@@ -59,10 +70,7 @@ public class CommentController(CommentService service, AuthService authService) 
     [AuthRequired("user")]
     public async Task<IActionResult> DisLike(Guid id)
     {
-        var auth = await authService.GetAuthUser();
-        if (auth == null)
-            return Unauthorized(new { message = "Token não fornecido e/ou inválido." });
-        await service.DisLike(id, auth.Id);
+        await service.DisLike(id, User.ToAuthModel().Id);
         return Ok();
     }
 }
