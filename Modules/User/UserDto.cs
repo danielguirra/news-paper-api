@@ -23,3 +23,8 @@ public class LoginBodyModelDto
 
     public string Password { get; set; } = null!;
 }
+
+public class LoginResponse
+{
+    public required string Token { get; set; }
+}

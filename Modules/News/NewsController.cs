@@ -8,7 +8,7 @@ using Modules.News.Service;
 namespace Modules.News.Controller;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/news")]
 public class NewsController(NewsService newsService) : ControllerBase
 {
     [HttpPost]
