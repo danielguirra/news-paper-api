@@ -1,4 +1,6 @@
-namespace Modules.Auth;
+using Modules.Auth.Service;
+
+namespace Modules.Auth.Module;
 
 public static class AuthModule
 {

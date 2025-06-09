@@ -1,11 +1,12 @@
 using Data;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using Modules.Comments.Dto;
+using Modules.Comments.Model;
 
-namespace Modules.Comments
+namespace Modules.Comments.Service
 {
-    public class CommentService(AppDbContext context) : BaseService(context)
+    public class CommentsService(AppDbContext context) : BaseService(context)
     {
         public async Task<CommentModel> Create(CommentModel commet)
         {
@@ -86,7 +87,7 @@ namespace Modules.Comments
             else
             {
                 context.CommentReactions.Add(
-                    new CommentReactionModel
+                    new CommentsReactionModel
                     {
                         CommentId = commentId,
                         UserId = userId,
@@ -117,7 +118,7 @@ namespace Modules.Comments
             else
             {
                 context.CommentReactions.Add(
-                    new CommentReactionModel
+                    new CommentsReactionModel
                     {
                         CommentId = commentId,
                         UserId = userId,

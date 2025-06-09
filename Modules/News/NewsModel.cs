@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Models;
-using Modules.Category;
-using Modules.User;
+using Modules.Category.Model;
+using Modules.User.Model;
 using Utils;
 
-namespace Modules.News
+namespace Modules.News.Model
 {
     public class NewsModel : BaseModel
     {

@@ -1,9 +1,11 @@
 using Data;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using Modules.Category.Dto;
+using Modules.Category.Model;
+using Modules.News.Dto;
 
-namespace Modules.Category;
+namespace Modules.Category.Service;
 
 public class CategoryService(AppDbContext context) : BaseService(context)
 {

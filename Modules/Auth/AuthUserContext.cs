@@ -1,8 +1,9 @@
 using System.Security.Claims;
 using Exceptions;
 using Microsoft.AspNetCore.Mvc;
+using Modules.Auth.Model;
 
-namespace Modules.Auth;
+namespace Modules.Auth.UserContext;
 
 public static class HttpContextUserExtensions
 {

@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using Models;
-using Modules.News;
-using Modules.User;
+using Modules.News.Model;
+using Modules.User.Model;
 
-namespace Modules.Comments
+namespace Modules.Comments.Model
 {
     public class CommentModel : BaseModel
     {

@@ -1,11 +1,11 @@
 using Data;
 using Microsoft.EntityFrameworkCore;
 using Middlewares;
-using Modules.Auth;
-using Modules.Category;
-using Modules.Comments;
-using Modules.News;
-using Modules.User;
+using Modules.Auth.Module;
+using Modules.Category.Module;
+using Modules.Comments.Module;
+using Modules.News.Module;
+using Modules.User.Module;
 using Utils;
 
 var builder = WebApplication.CreateBuilder(args);

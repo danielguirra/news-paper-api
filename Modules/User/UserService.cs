@@ -2,10 +2,12 @@ using Data;
 using Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Models;
-using Modules.Auth;
+using Modules.Auth.Model;
+using Modules.Auth.Token;
+using Modules.User.Dto;
+using Modules.User.Model;
 
-namespace Modules.User
+namespace Modules.User.Service
 {
     public class UserService(AppDbContext context) : BaseService(context)
     {
@@ -45,7 +47,7 @@ namespace Modules.User
         public async Task<List<UserModel>> ListAll() =>
             await context.Users.OrderBy(u => u.Role).ToListAsync();
 
-        public async Task<bool> ValidateCredentials(LoginModel login)
+        public async Task<bool> ValidateCredentials(LoginBodyModelDto login)
         {
             var user = await GetByEmail(login.Email);
             if (user == null)
@@ -60,7 +62,7 @@ namespace Modules.User
             return true;
         }
 
-        public async Task<string> GetTokenAsync(LoginModel login)
+        public async Task<string> GetTokenAsync(LoginBodyModelDto login)
         {
             await ValidateCredentials(login);
 
@@ -103,7 +105,11 @@ namespace Modules.User
                 && !string.IsNullOrWhiteSpace(dto.NewPassword)
             )
             {
-                var login = new LoginModel { Email = findUser.Email, Password = dto.Password };
+                var login = new LoginBodyModelDto
+                {
+                    Email = findUser.Email,
+                    Password = dto.Password,
+                };
 
                 if (!await ValidateCredentials(login))
                     throw new InvalidUserCredentialsException();

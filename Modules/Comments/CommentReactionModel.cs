@@ -1,11 +1,11 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Models;
-using Modules.User;
+using Modules.User.Model;
 
-namespace Modules.Comments;
+namespace Modules.Comments.Model;
 
-public class CommentReactionModel : BaseModel
+public class CommentsReactionModel : BaseModel
 {
     [Required]
     public required Guid UserId { get; set; }

@@ -1,4 +1,7 @@
-namespace Modules.News;
+using Modules.News.Controller;
+using Modules.News.Service;
+
+namespace Modules.News.Module;
 
 public static class NewsModule
 {

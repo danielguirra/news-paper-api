@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
-using Modules.Category;
-using Modules.Comments;
-using Modules.News;
-using Modules.User;
+using Modules.Category.Model;
+using Modules.Comments.Model;
+using Modules.News.Model;
+using Modules.User.Model;
 using Utils;
 
 namespace Data
@@ -13,7 +13,7 @@ namespace Data
         public DbSet<UserModel> Users => Set<UserModel>();
         public DbSet<CategoryModel> Categories => Set<CategoryModel>();
         public DbSet<CommentModel> Comments => Set<CommentModel>();
-        public DbSet<CommentReactionModel> CommentReactions => Set<CommentReactionModel>();
+        public DbSet<CommentsReactionModel> CommentReactions => Set<CommentsReactionModel>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

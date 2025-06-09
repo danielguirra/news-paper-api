@@ -2,10 +2,10 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
 using Models;
-using Modules.News;
+using Modules.News.Model;
 using Utils;
 
-namespace Modules.User
+namespace Modules.User.Model
 {
     public class UserModel : BaseModel
     {
