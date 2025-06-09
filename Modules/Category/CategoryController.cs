@@ -7,7 +7,7 @@ using Modules.Category.Service;
 namespace Modules.Category.Controller;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("/api/category")]
 public class CategoryController(CategoryService categoryService) : ControllerBase
 {
     [HttpPost]

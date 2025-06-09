@@ -9,7 +9,7 @@ using Modules.User.Service;
 namespace Modules.User.Controller;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/user")]
 public class UserController(UserService service) : ControllerBase
 {
     [HttpPost]
@@ -34,10 +34,11 @@ public class UserController(UserService service) : ControllerBase
     }
 
     [HttpPost("login")]
+    [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> Login(LoginBodyModelDto login)
     {
         var token = await service.GetTokenAsync(login);
-        return StatusCode(201, new { token, message = "Login sucesso" });
+        return StatusCode(201, new LoginResponse() { Token = token });
     }
 
     [HttpDelete("{id}/inactive")]
