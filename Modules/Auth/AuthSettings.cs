@@ -1,7 +1,6 @@
-namespace Modules.Auth
+namespace Modules.Auth.Settings;
+
+public static class AuthSettings
 {
-    public static class AuthSettings
-    {
-        public static string Secret = "FaizULPorqueOLEtudoqueexistenanossamonotavida";
-    }
+    public static string Secret = "FaizULPorqueOLEtudoqueexistenanossamonotavida";
 }

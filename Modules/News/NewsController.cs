@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Modules.Auth;
+using Modules.Auth.UserContext;
+using Modules.News.Dto;
+using Modules.News.Model;
+using Modules.News.Service;
 
-namespace Modules.News;
+namespace Modules.News.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -10,7 +13,7 @@ public class NewsController(NewsService newsService) : ControllerBase
 {
     [HttpPost]
     [AuthRequired("author")]
-    public async Task<IActionResult> Create(NewsBodyModel newsBody)
+    public async Task<IActionResult> Create(NewsBodyModelDto newsBody)
     {
         var created = await newsService.Create(
             new NewsModel

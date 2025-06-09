@@ -1,4 +1,7 @@
-namespace Modules.Category;
+using Modules.Category.Controller;
+using Modules.Category.Service;
+
+namespace Modules.Category.Module;
 
 public static class CategoryModule
 {

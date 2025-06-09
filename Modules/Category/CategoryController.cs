@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Modules.Auth;
+using Modules.Category.Dto;
+using Modules.Category.Model;
+using Modules.Category.Service;
 
-namespace Modules.Category;
+namespace Modules.Category.Controller;
 
 [ApiController]
 [Route("/api/[controller]")]
@@ -10,7 +12,7 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
 {
     [HttpPost]
     [AuthRequired("admin")]
-    public async Task<IActionResult> Create(CategoryBodyModel categoryBody)
+    public async Task<IActionResult> Create(CategoryBodyModelDto categoryBody)
     {
         var created = await categoryService.Create(new CategoryModel { Name = categoryBody.Name });
         return Created("", new { created.Id });

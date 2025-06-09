@@ -1,4 +1,7 @@
-namespace Modules.User;
+using Modules.User.Controller;
+using Modules.User.Service;
+
+namespace Modules.User.Module;
 
 public static class UserModule
 {

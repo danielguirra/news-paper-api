@@ -1,9 +1,12 @@
 using Data;
 using Exceptions;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using Modules.Category.Dto;
+using Modules.News.Dto;
+using Modules.News.Model;
+using Modules.User.Dto;
 
-namespace Modules.News
+namespace Modules.News.Service
 {
     public class NewsService(AppDbContext context) : BaseService(context)
     {
@@ -50,7 +53,7 @@ namespace Modules.News
                     Author = new AuthorDto
                     {
                         Name = n.Author!.Name,
-                        Role = n.Author!.Role,
+                        Role = n.Author.Role,
                         Id = n.AuthorId,
                     },
                     Category = new CategoryDto { Name = n.Category!.Name, Id = n.Category.Id },

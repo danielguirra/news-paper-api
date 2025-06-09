@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Modules.Auth;
+using Modules.Auth.UserContext;
+using Modules.User.Dto;
+using Modules.User.Model;
+using Modules.User.Service;
 
-namespace Modules.User;
+namespace Modules.User.Controller;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -31,7 +34,7 @@ public class UserController(UserService service) : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginModel login)
+    public async Task<IActionResult> Login(LoginBodyModelDto login)
     {
         var token = await service.GetTokenAsync(login);
         return StatusCode(201, new { token, message = "Login sucesso" });

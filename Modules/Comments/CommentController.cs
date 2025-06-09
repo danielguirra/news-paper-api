@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Modules.Auth;
+using Modules.Auth.UserContext;
+using Modules.Comments.Dto;
+using Modules.Comments.Model;
+using Modules.Comments.Service;
 
-namespace Modules.Comments;
+namespace Modules.Comments.Controller;
 
 [ApiController]
 [Route("api/news/{newsId}/comments")]
-public class CommentController(CommentService service) : ControllerBase
+public class CommentsController(CommentsService service) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> List(Guid newsId, int skip = 0, int take = 10)
