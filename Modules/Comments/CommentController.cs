@@ -19,6 +19,7 @@ public class CommentsController(CommentsService service) : ControllerBase
     }
 
     [HttpPost]
+    [AuthRequired("user")]
     public async Task<IActionResult> Create(Guid newsId, [FromBody] CreateCommentDto dto)
     {
         var comment = await service.Create(
@@ -36,6 +37,7 @@ public class CommentsController(CommentsService service) : ControllerBase
     }
 
     [HttpPost("{id}/replies")]
+    [AuthRequired("user")]
     public async Task<IActionResult> Reply(Guid newsId, Guid id, [FromBody] CreateCommentDto dto)
     {
         var comment = await service.Create(
