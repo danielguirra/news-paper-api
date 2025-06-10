@@ -36,9 +36,10 @@ namespace Modules.Comments.Service
                 throw new BadRequestTakeSkip();
 
             var comments = await context
-                .Comments.Include(n => n.Author)
-                .Where(c => c.NewsId == id && c.Active)
-                .OrderByDescending(n => n.Likes)
+                .Comments.Include(c => c.Author)
+                .Include(c => c.Replies)
+                .Where(c => c.NewsId == id && c.Active && c.ParentCommentId == null)
+                .OrderByDescending(c => c.Likes)
                 .Skip(skip)
                 .Take(take)
                 .Select(c => new CommentNewsDto
@@ -50,6 +51,24 @@ namespace Modules.Comments.Service
                     UpdatedAt = c.UpdatedAt,
                     Likes = c.Likes,
                     DisLikes = c.DisLikes,
+                    Replies = (
+                        c.Replies != null && c.Replies.Any()
+                            ? c
+                                .Replies.Where(r => r.Active)
+                                .OrderBy(r => r.CreatedAt)
+                                .Select(r => new CommentNewsDto
+                                {
+                                    Id = r.Id,
+                                    Content = r.Content,
+                                    AuthorName = r.Author!.Name,
+                                    CreatedAt = r.CreatedAt,
+                                    UpdatedAt = r.UpdatedAt,
+                                    Likes = r.Likes,
+                                    DisLikes = r.DisLikes,
+                                })
+                                .ToList()
+                            : new List<CommentNewsDto>()
+                    ),
                 })
                 .ToListAsync();
 
