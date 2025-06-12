@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Modules.Auth;
 using Modules.Auth.UserContext;
 using Modules.News.Dto;
@@ -9,10 +10,12 @@ namespace Modules.News.Controller;
 
 [ApiController]
 [Route("api/news")]
+[EnableRateLimiting("fixed")]
 public class NewsController(NewsService newsService) : ControllerBase
 {
     [HttpPost]
     [AuthRequired("author")]
+    [EnableRateLimiting("authenticated")]
     public async Task<IActionResult> Create(NewsBodyModelDto newsBody)
     {
         NewsModel created = await newsService.Create(
@@ -32,6 +35,7 @@ public class NewsController(NewsService newsService) : ControllerBase
 
     [HttpPut]
     [AuthRequired("admin")]
+    [EnableRateLimiting("authenticated")]
     public async Task<IActionResult> Edit(EditNewsDto news)
     {
         await newsService.Edit(news);
@@ -40,6 +44,7 @@ public class NewsController(NewsService newsService) : ControllerBase
 
     [HttpDelete("{id}/inactive")]
     [AuthRequired("admin")]
+    [EnableRateLimiting("authenticated")]
     public async Task<IActionResult> Inactivate(Guid id)
     {
         await newsService.Inactive(id);

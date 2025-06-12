@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Modules.Auth;
 using Modules.Auth.UserContext;
 using Modules.Comments.Dto;
@@ -9,9 +10,11 @@ namespace Modules.Comments.Controller;
 
 [ApiController]
 [Route("api/news/{newsId}/comments")]
+[EnableRateLimiting("authenticated")]
 public class CommentsController(CommentsService service) : ControllerBase
 {
     [HttpGet]
+    [EnableRateLimiting("unauthenticatedIp")]
     public async Task<IActionResult> List(Guid newsId, int skip = 0, int take = 10)
     {
         List<CommentNewsDto> comments = await service.ListCommentsByNewsId(newsId, take, skip);
