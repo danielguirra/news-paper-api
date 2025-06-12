@@ -36,7 +36,7 @@ namespace Modules.Comments.Model
         public Guid? ParentCommentId { get; set; }
 
         [ForeignKey(nameof(ParentCommentId))]
-        public CommentModel? ParentComment { get; set; } // Navegação para o comentário pai
+        public CommentModel? ParentComment { get; set; }
 
         [AllowNull]
         public ICollection<CommentModel>? Replies { get; set; }

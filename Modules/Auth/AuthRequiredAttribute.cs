@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Modules.Auth.Model;
 using Modules.Auth.Service;
 
 namespace Modules.Auth;
@@ -10,8 +11,8 @@ public class AuthRequiredAttribute(params string[] roles) : Attribute, IAsyncAut
 {
     public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
     {
-        var authService = context.HttpContext.RequestServices.GetService<AuthService>();
-        var auth = authService == null ? null : await authService.GetAuthUser();
+        AuthService? authService = context.HttpContext.RequestServices.GetService<AuthService>();
+        AuthModel? auth = authService == null ? null : await authService.GetAuthUser();
 
         if (auth == null)
         {
@@ -21,13 +22,13 @@ public class AuthRequiredAttribute(params string[] roles) : Attribute, IAsyncAut
             return;
         }
 
-        var claims = new List<Claim>
-        {
+        List<Claim>? claims =
+        [
             new Claim(ClaimTypes.NameIdentifier, auth.Id.ToString()),
             new Claim(ClaimTypes.Name, auth.Name),
             new Claim(ClaimTypes.Role, auth.Role),
-        };
-        var userIdentity = new ClaimsIdentity(claims, "AuthModel"); //
+        ];
+        ClaimsIdentity userIdentity = new(claims, "AuthModel"); //
         context.HttpContext.User = new ClaimsPrincipal(userIdentity);
 
         if (auth.Role == "boss" || auth.Role == "admin")

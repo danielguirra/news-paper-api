@@ -10,12 +10,12 @@ public class AuthService(IHttpContextAccessor httpContextAccessor, UserService u
 
     public async Task<AuthModel?> GetAuthUser()
     {
-        var authHeader =
+        string? authHeader =
             _httpContextAccessor.HttpContext?.Request.Headers.Authorization.FirstOrDefault();
         if (authHeader == null || !authHeader.StartsWith("Bearer "))
             return null;
 
-        var token = authHeader["Bearer ".Length..].Trim();
+        string? token = authHeader["Bearer ".Length..].Trim();
         return await _userService.Me(token);
     }
 }

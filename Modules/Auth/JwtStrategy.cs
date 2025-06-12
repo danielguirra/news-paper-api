@@ -12,9 +12,9 @@ public static class TokenService
 {
     public static string GetToken(UserModel user)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(AuthSettings.Secret);
-        var tokenDescriptor = new SecurityTokenDescriptor
+        JwtSecurityTokenHandler tokenHandler = new();
+        byte[]? key = Encoding.ASCII.GetBytes(AuthSettings.Secret);
+        SecurityTokenDescriptor tokenDescriptor = new()
         {
             Subject = new ClaimsIdentity(
                 [
@@ -30,7 +30,7 @@ public static class TokenService
             ),
         };
 
-        var token = tokenHandler.CreateToken(tokenDescriptor);
+        SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
 
@@ -39,12 +39,12 @@ public static class TokenService
         if (string.IsNullOrWhiteSpace(token))
             return null;
 
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.ASCII.GetBytes(AuthSettings.Secret);
+        JwtSecurityTokenHandler tokenHandler = new();
+        byte[] key = Encoding.ASCII.GetBytes(AuthSettings.Secret);
 
         try
         {
-            var validationParameters = new TokenValidationParameters
+            TokenValidationParameters validationParameters = new()
             {
                 ValidateIssuer = false,
                 ValidateAudience = false,
@@ -54,11 +54,15 @@ public static class TokenService
                 ClockSkew = TimeSpan.Zero,
             };
 
-            var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+            ClaimsPrincipal principal = tokenHandler.ValidateToken(
+                token,
+                validationParameters,
+                out _
+            );
 
-            var idString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var name = principal.FindFirst(ClaimTypes.Name)?.Value;
-            var role = principal.FindFirst(ClaimTypes.Role)?.Value;
+            string? idString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string? name = principal.FindFirst(ClaimTypes.Name)?.Value;
+            string? role = principal.FindFirst(ClaimTypes.Role)?.Value;
 
             if (
                 string.IsNullOrEmpty(idString)

@@ -17,7 +17,7 @@ namespace Utils
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 context.Response.ContentType = "application/json";
 
-                var result = JsonSerializer.Serialize(
+                string result = JsonSerializer.Serialize(
                     new { Errors = new[] { "Erro na leitura do JSON: " + ex.Message } }
                 );
 

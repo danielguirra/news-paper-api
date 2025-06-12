@@ -16,8 +16,8 @@ public class ExceptionHandlingMiddleware(
         }
         catch (Exception ex)
         {
-            var code = 500;
-            var message = "Erro interno do servidor";
+            int code = 500;
+            string message = "Erro interno do servidor";
             if (ex.Message != null)
             {
                 message = ex.Message;
@@ -26,7 +26,7 @@ public class ExceptionHandlingMiddleware(
             if (ex is IHasHttpCode httpCode)
             {
                 code = httpCode.Code;
-                message = ex.Message;
+                message = ex.Message!;
             }
 
             _logger.LogError(ex, "Exceção capturada no middleware.");

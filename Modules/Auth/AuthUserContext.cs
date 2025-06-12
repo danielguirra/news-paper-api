@@ -14,9 +14,9 @@ public static class HttpContextUserExtensions
 
     public static AuthModel ToAuthModel(this ClaimsPrincipal principal)
     {
-        var userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var userNameClaim = principal.FindFirst(ClaimTypes.Name)?.Value;
-        var userRoleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
+        string? userIdClaim = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        string? userNameClaim = principal.FindFirst(ClaimTypes.Name)?.Value;
+        string? userRoleClaim = principal.FindFirst(ClaimTypes.Role)?.Value;
 
         if (
             userIdClaim == null
@@ -38,7 +38,7 @@ public static class HttpContextUserExtensions
 
     public static Guid GetUserId(this ClaimsPrincipal principal)
     {
-        var userIdClaim =
+        string? userIdClaim =
             (principal.FindFirst(ClaimTypes.NameIdentifier)?.Value)
             ?? throw new UserNotFoundException(null);
 

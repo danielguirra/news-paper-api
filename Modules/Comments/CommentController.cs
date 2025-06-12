@@ -14,7 +14,7 @@ public class CommentsController(CommentsService service) : ControllerBase
     [HttpGet]
     public async Task<IActionResult> List(Guid newsId, int skip = 0, int take = 10)
     {
-        var comments = await service.ListCommentsByNewsId(newsId, take, skip);
+        List<CommentNewsDto> comments = await service.ListCommentsByNewsId(newsId, take, skip);
         return Ok(comments);
     }
 
@@ -22,7 +22,7 @@ public class CommentsController(CommentsService service) : ControllerBase
     [AuthRequired("user")]
     public async Task<IActionResult> Create(Guid newsId, [FromBody] CreateCommentDto dto)
     {
-        var comment = await service.Create(
+        CommentModel comment = await service.Create(
             new CommentModel
             {
                 NewsId = newsId,
@@ -40,7 +40,7 @@ public class CommentsController(CommentsService service) : ControllerBase
     [AuthRequired("user")]
     public async Task<IActionResult> Reply(Guid newsId, Guid id, [FromBody] CreateCommentDto dto)
     {
-        var comment = await service.Create(
+        CommentModel comment = await service.Create(
             new CommentModel
             {
                 NewsId = newsId,

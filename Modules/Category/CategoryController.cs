@@ -14,29 +14,28 @@ public class CategoryController(CategoryService categoryService) : ControllerBas
     [AuthRequired("admin")]
     public async Task<IActionResult> Create(CategoryBodyModelDto categoryBody)
     {
-        var created = await categoryService.Create(new CategoryModel { Name = categoryBody.Name });
+        CategoryModel created = await categoryService.Create(
+            new CategoryModel { Name = categoryBody.Name }
+        );
         return Created("", new { created.Id });
     }
 
     [HttpGet("{id}/news")]
     public async Task<IActionResult> ListNews(Guid id)
     {
-        var news = await categoryService.GetManyNewsOnCategoryId(id);
-        return Ok(news);
+        return Ok(await categoryService.GetManyNewsOnCategoryId(id));
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetOneCategory(Guid id)
     {
-        var category = await categoryService.GetCategory(id);
-        return Ok(category);
+        return Ok(await categoryService.GetCategory(id));
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAllCategories()
     {
-        var categories = await categoryService.GetAllCategories();
-        return Ok(categories);
+        return Ok(await categoryService.GetAllCategories());
     }
 
     [HttpDelete("{id}/inactive")]
