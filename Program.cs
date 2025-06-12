@@ -6,7 +6,6 @@ using Modules.Auth.Module;
 using Modules.Category.Module;
 using Modules.Comments.Module;
 using Modules.Guard.Module;
-// Certifique-se de que este using está presente
 using Modules.News.Module;
 using Modules.User.Module;
 using Utils;
@@ -31,13 +30,12 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-// Adição dos módulos de serviço
 builder.Services.AddUserModule();
 builder.Services.AddNewsModule();
 builder.Services.AddCommentModule();
 builder.Services.AddCategoryModule();
 builder.Services.AddAuthModule();
-builder.Services.AddGuardModule(); // Configura as políticas de Rate Limiting nos serviços
+builder.Services.AddGuardModule();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
@@ -97,15 +95,12 @@ WebApplication app = builder.Build();
 
 app.UseHttpsRedirection();
 
-// Adiciona o middleware de roteamento
-app.UseRouting(); // Boa prática adicionar explicitamente antes de UseAuthentication/UseAuthorization
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-// IMPORTANTE: Adicione o GuardModule (com Rate Limiting) AQUI,
-// após a autenticação e autorização para que as políticas que dependem do usuário funcionem.
-app.UseGuardModule(); // Adiciona o middleware de Rate Limiting
+app.UseGuardModule();
 
 if (app.Environment.IsDevelopment())
 {
