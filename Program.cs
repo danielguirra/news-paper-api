@@ -9,7 +9,7 @@ using Modules.News.Module;
 using Modules.User.Module;
 using Utils;
 
-var builder = WebApplication.CreateBuilder(args);
+WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -89,7 +89,7 @@ builder.Services.AddSwaggerGen(options =>
     );
 });
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 app.UseHttpsRedirection();
 app.UseAuthentication();

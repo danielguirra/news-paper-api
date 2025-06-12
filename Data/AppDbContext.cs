@@ -19,7 +19,7 @@ namespace Data
         {
             foreach (var entityType in modelBuilder.Model.GetEntityTypes())
             {
-                var properties = entityType
+                IEnumerable<System.Reflection.PropertyInfo> properties = entityType
                     .ClrType.GetProperties()
                     .Where(p => Attribute.IsDefined(p, typeof(UniqueAttribute)));
 

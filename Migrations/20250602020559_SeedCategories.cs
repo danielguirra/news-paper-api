@@ -8,11 +8,11 @@ namespace Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow;
 
             migrationBuilder.InsertData(
                 table: "Categories",
-                columns: new[] { "Id", "Name", "Active", "CreatedAt", "UpdatedAt" },
+                columns: ["Id", "Name", "Active", "CreatedAt", "UpdatedAt"],
                 values: new object[,]
                 {
                     { Guid.NewGuid(), "Tecnologia", true, now, now },

@@ -17,13 +17,13 @@ namespace Exceptions
     }
 
     public class InvalidUserCredentialsException()
-        : Exception("Email ou Senha Incorretos"),
+        : Exception("Email/Senha Incorretos"),
             IHasHttpCode
     {
         public int Code => 401;
     }
 
-    public class InvalidUserTokenException() : Exception("Token invalido"), IHasHttpCode
+    public class InvalidUserTokenException() : Exception("Token Invalido/Expirado"), IHasHttpCode
     {
         public int Code => 401;
     }

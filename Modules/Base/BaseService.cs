@@ -11,7 +11,7 @@ public abstract class BaseService
 
     protected async Task SaveAsync()
     {
-        var saved = await context.SaveChangesAsync();
+        int saved = await context.SaveChangesAsync();
         if (saved == 0)
             throw new Exception("Nada foi salvo no banco.");
     }

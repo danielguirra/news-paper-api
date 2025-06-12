@@ -35,7 +35,7 @@ namespace Modules.Comments.Service
             if (take <= 0 || skip < 0)
                 throw new BadRequestTakeSkip();
 
-            var comments = await context
+            List<CommentNewsDto>? comments = await context
                 .Comments.Include(c => c.Author)
                 .Include(c => c.Replies)
                 .Where(c => c.NewsId == id && c.Active && c.ParentCommentId == null)
@@ -80,7 +80,7 @@ namespace Modules.Comments.Service
 
         public async Task Inactive(Guid id)
         {
-            var findComment =
+            CommentModel findComment =
                 await context.Comments.FirstOrDefaultAsync(c => c.Id == id)
                 ?? throw new CommentNotFoundException(id);
             findComment.Active = false;
@@ -91,8 +91,8 @@ namespace Modules.Comments.Service
 
         public async Task Like(Guid commentId, Guid userId)
         {
-            var reaction = await context.CommentReactions.FirstOrDefaultAsync(r =>
-                r.CommentId == commentId && r.UserId == userId
+            CommentsReactionModel? reaction = await context.CommentReactions.FirstOrDefaultAsync(
+                r => r.CommentId == commentId && r.UserId == userId
             );
 
             if (reaction != null)
@@ -122,8 +122,8 @@ namespace Modules.Comments.Service
 
         public async Task DisLike(Guid commentId, Guid userId)
         {
-            var reaction = await context.CommentReactions.FirstOrDefaultAsync(r =>
-                r.CommentId == commentId && r.UserId == userId
+            CommentsReactionModel? reaction = await context.CommentReactions.FirstOrDefaultAsync(
+                r => r.CommentId == commentId && r.UserId == userId
             );
 
             if (reaction != null)
@@ -153,7 +153,9 @@ namespace Modules.Comments.Service
 
         private async Task AdjustReactionCounts(Guid commentId, int likeDelta, int dislikeDelta)
         {
-            var comment = await context.Comments.FirstAsync(c => c.Id == commentId);
+            CommentModel comment =
+                await context.Comments.FirstAsync(c => c.Id == commentId)
+                ?? throw new CommentNotFoundException(commentId);
             comment.Likes += likeDelta;
             comment.DisLikes += dislikeDelta;
         }

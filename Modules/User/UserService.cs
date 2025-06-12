@@ -17,13 +17,9 @@ namespace Modules.User.Service
         private async Task<UserModel?> GetByEmail(string email) =>
             await context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-        private async Task<UserModel> GetByIdOrThrow(Guid id)
-        {
-            var user = await context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
-                throw new UserNotFoundException(id);
-            return user;
-        }
+        private async Task<UserModel> GetByIdOrThrow(Guid id) =>
+            await context.Users.FirstOrDefaultAsync(u => u.Id == id)
+            ?? throw new UserNotFoundException(id);
 
         public async Task<UserModel> Create(UserModel user, AuthModel? auth)
         {
@@ -36,7 +32,7 @@ namespace Modules.User.Service
                     ValidateRolePermission(auth.Role, user.Role);
                 }
 
-            var passwordHasher = new PasswordHasher<UserModel>();
+            PasswordHasher<UserModel>? passwordHasher = new();
             user.Password = passwordHasher.HashPassword(user, user.Password);
             context.Users.Add(user);
             await SaveAsync();
@@ -45,16 +41,20 @@ namespace Modules.User.Service
         }
 
         public async Task<List<UserModel>> ListAll() =>
-            await context.Users.OrderBy(u => u.Role).ToListAsync();
+            await context.Users.OrderBy(u => u.Role).ToListAsync()
+            ?? throw new UserNotFoundException(null);
 
         public async Task<bool> ValidateCredentials(LoginBodyModelDto login)
         {
-            var user = await GetByEmail(login.Email);
-            if (user == null)
-                throw new InvalidUserCredentialsException();
+            UserModel? user =
+                await GetByEmail(login.Email) ?? throw new InvalidUserCredentialsException();
 
-            var passwordHasher = new PasswordHasher<UserModel>();
-            var verify = passwordHasher.VerifyHashedPassword(user, user.Password, login.Password);
+            PasswordHasher<UserModel>? passwordHasher = new();
+            PasswordVerificationResult verify = passwordHasher.VerifyHashedPassword(
+                user,
+                user.Password,
+                login.Password
+            );
 
             if (verify == PasswordVerificationResult.Failed)
                 throw new InvalidUserCredentialsException();
@@ -66,9 +66,8 @@ namespace Modules.User.Service
         {
             await ValidateCredentials(login);
 
-            var user = await GetByEmail(login.Email);
-            if (user == null)
-                throw new UserNotFoundException(null);
+            UserModel? user =
+                await GetByEmail(login.Email) ?? throw new UserNotFoundException(null);
 
             string token = TokenService.GetToken(user);
             return token;
@@ -76,15 +75,16 @@ namespace Modules.User.Service
 
         public async Task Clean()
         {
-            var users = await context.Users.ToListAsync();
+            List<UserModel> users = await context.Users.ToListAsync();
             context.Users.RemoveRange(users);
             await SaveAsync();
         }
 
         public async Task<AuthModel> Me(string token)
         {
-            var auth = TokenService.ValidateToken(token) ?? throw new InvalidUserTokenException();
-            var user =
+            AuthModel? auth =
+                TokenService.ValidateToken(token) ?? throw new InvalidUserTokenException();
+            UserModel? user =
                 await context.Users.FirstOrDefaultAsync(u => u.Id == auth.Id)
                 ?? throw new UserNotFoundException(auth.Id);
             return auth;
@@ -92,7 +92,7 @@ namespace Modules.User.Service
 
         public async Task Edit(EditUserDto dto, AuthModel auth)
         {
-            var findUser = await GetByIdOrThrow(dto.Id);
+            UserModel? findUser = await GetByIdOrThrow(dto.Id);
 
             if (dto.Role != null && dto.Role != auth.Role)
             {
@@ -105,16 +105,12 @@ namespace Modules.User.Service
                 && !string.IsNullOrWhiteSpace(dto.NewPassword)
             )
             {
-                var login = new LoginBodyModelDto
-                {
-                    Email = findUser.Email,
-                    Password = dto.Password,
-                };
+                LoginBodyModelDto login = new() { Email = findUser.Email, Password = dto.Password };
 
                 if (!await ValidateCredentials(login))
                     throw new InvalidUserCredentialsException();
 
-                var passwordHasher = new PasswordHasher<UserModel>();
+                PasswordHasher<UserModel>? passwordHasher = new();
                 findUser.Password = passwordHasher.HashPassword(findUser, dto.NewPassword);
             }
 
@@ -132,7 +128,7 @@ namespace Modules.User.Service
 
         public async Task Inactivate(Guid id)
         {
-            var user = await GetByIdOrThrow(id);
+            UserModel user = await GetByIdOrThrow(id);
 
             user.Active = false;
             context.Users.Update(user);

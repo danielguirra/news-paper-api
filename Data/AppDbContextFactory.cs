@@ -7,13 +7,13 @@ namespace Data
     {
         public AppDbContext CreateDbContext(string[] args)
         {
-            var configuration = new ConfigurationBuilder()
+            IConfigurationRoot configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            DbContextOptionsBuilder<AppDbContext> optionsBuilder = new();
+            string? connectionString = configuration.GetConnectionString("DefaultConnection");
 
             optionsBuilder.UseNpgsql(connectionString);
 

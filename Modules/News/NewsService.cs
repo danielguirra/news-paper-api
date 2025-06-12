@@ -14,7 +14,7 @@ namespace Modules.News.Service
         {
             if (take <= 0 || skip < 0)
                 throw new BadRequestTakeSkip();
-            var recents = await context
+            List<NewsRecentsDto>? recents = await context
                 .News.Include(n => n.Author)
                 .Include(n => n.Category)
                 .Where(n => n.Active)
@@ -40,7 +40,7 @@ namespace Modules.News.Service
 
         public async Task<NewsDto> GetOneById(Guid id)
         {
-            var news = await context
+            NewsDto? news = await context
                 .News.Where(n => n.Active)
                 .Include(n => n.Author)
                 .Include(n => n.Category)
@@ -69,7 +69,7 @@ namespace Modules.News.Service
 
         public async Task<List<NewsRecentsDto>> GetByTitle(string title)
         {
-            var news = await context
+            List<NewsRecentsDto>? news = await context
                 .News.Include(n => n.Author)
                 .Where(n => EF.Functions.ILike(n.Title, $"%{title}%") && n.Active)
                 .OrderByDescending(n => n.CreatedAt)
@@ -112,7 +112,7 @@ namespace Modules.News.Service
 
         public async Task Edit(EditNewsDto dto)
         {
-            var findNews = await GetNewsOrThrow(dto.Id);
+            NewsModel findNews = await GetNewsOrThrow(dto.Id);
 
             if (!string.IsNullOrWhiteSpace(dto.Title))
                 findNews.Title = dto.Title;
@@ -140,7 +140,7 @@ namespace Modules.News.Service
 
         public async Task Inactive(Guid id)
         {
-            var news = await GetNewsOrThrow(id);
+            NewsModel news = await GetNewsOrThrow(id);
 
             news.Active = false;
             context.News.Update(news);
@@ -148,17 +148,9 @@ namespace Modules.News.Service
             await SaveAsync();
         }
 
-        // Não implementado, apenas teste
-        public async Task Clean()
-        {
-            var news = await context.News.ToListAsync();
-            context.News.RemoveRange(news);
-            await SaveAsync();
-        }
-
         private async Task<NewsModel> GetNewsOrThrow(Guid id)
         {
-            var news = await context.News.FirstOrDefaultAsync(n => n.Id == id);
+            NewsModel? news = await context.News.FirstOrDefaultAsync(n => n.Id == id);
             return news ?? throw new NewsNotFoundException(id);
         }
     }

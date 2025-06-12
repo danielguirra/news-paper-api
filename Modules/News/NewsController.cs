@@ -15,7 +15,7 @@ public class NewsController(NewsService newsService) : ControllerBase
     [AuthRequired("author")]
     public async Task<IActionResult> Create(NewsBodyModelDto newsBody)
     {
-        var created = await newsService.Create(
+        NewsModel created = await newsService.Create(
             new NewsModel
             {
                 Title = newsBody.Title,

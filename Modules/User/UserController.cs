@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Modules.Auth;
+using Modules.Auth.Model;
 using Modules.Auth.UserContext;
 using Modules.User.Dto;
 using Modules.User.Model;
@@ -16,12 +17,12 @@ public class UserController(UserService service) : ControllerBase
     [AllowAnonymous]
     public async Task<IActionResult> Create(UserModel newUser)
     {
-        var auth = User.ToAuthModel();
+        AuthModel auth = User.ToAuthModel();
         if (auth == null)
         {
             newUser.Role = "user";
         }
-        var created = await service.Create(newUser, auth);
+        UserModel created = await service.Create(newUser, auth);
         return Created("", new { created.Id });
     }
 
@@ -37,7 +38,7 @@ public class UserController(UserService service) : ControllerBase
     [ProducesResponseType(typeof(LoginResponse), StatusCodes.Status201Created)]
     public async Task<IActionResult> Login(LoginBodyModelDto login)
     {
-        var token = await service.GetTokenAsync(login);
+        string token = await service.GetTokenAsync(login);
         return StatusCode(201, new LoginResponse() { Token = token });
     }
 
