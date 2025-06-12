@@ -1,177 +1,585 @@
-# News-Paper-Api
+News-Paper-Api
+==============
 
-API REST de um Jornal Online em ASP.NET Core .
+API REST de um Jornal Online em ASP.NET Core.
 
-## ⚙️Para que o projeto funcione corretamente, crie um arquivo chamado appsettings.json na raiz do projeto com o seguinte conteúdo:
+* * *
 
-```json
-{
-   "AllowedHosts": "*",
-   "ConnectionStrings": {
-      "DefaultConnection": "Host=databaseUri;Port=5432;Database=DabaseName;Username=postgres;Password=suasenhaaqui"
-   },
-   "Logging": {
-      "LogLevel": {
-         "Default": "Information",
-         "Microsoft.AspNetCore": "Warning"
+⚙️ Configuração do Projeto
+--------------------------
+
+Para que o projeto funcione corretamente, crie um arquivo chamado **appsettings.json** na raiz do projeto com o seguinte conteúdo:
+
+    {
+      "AllowedHosts": "*",
+      "ConnectionStrings": {
+        "DefaultConnection": "Host=databaseUri;Port=5432;Database=DabaseName;Username=postgres;Password=suasenhaaqui"
+      },
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
       }
-   }
-}
-```
+    }
 
----
+* * *
 
-## 📦 Endpoints
+📦 Endpoints
+------------
+
+Esta API permite o gerenciamento de notícias, categorias, usuários e comentários.
+
+### Usuários
+
+* * *
 
 ### ✅ Criar Usuário
 
 **POST** `/api/user`
 
+Cria um novo usuário no sistema.
+
 **Body:**
 
-```json
-{
-   "name": "João",
-   "email": "joao@email.com",
-   "password": "senha123",
-   "role": "admin"
-}
-```
+    {
+      "name": "João",
+      "email": "joao@email.com",
+      "password": "senha123",
+      "role": "admin"
+    }
+
+**Parâmetros:**
+
+*   `name` (string, **obrigatório**): Nome do usuário (mínimo 1, máximo 255 caracteres).
+*   `email` (string, **obrigatório**): E-mail do usuário (mínimo 1, máximo 100 caracteres, formato de e-mail).
+*   `password` (string, **obrigatório**): Senha do usuário (mínimo 8 caracteres).
+*   `role` (string, **obrigatório**): Papel do usuário (mínimo 4, máximo 6 caracteres).
 
 **Resposta:**
 
--  `201 Created` com o `Id` do usuário
--  `409 Conflict` se nome ou e-mail já estiverem em uso
+*   `200 OK`: Usuário criado com sucesso.
+*   `409 Conflict`: Se nome ou e-mail já estiverem em uso.
 
----
+* * *
 
 ### 🔐 Login
 
 **POST** `/api/user/login`
 
+Autentica um usuário e retorna um token JWT.
+
 **Body:**
 
-```json
-{
-   "email": "joao@email.com",
-   "password": "senha123"
-}
-```
+    {
+      "email": "joao@email.com",
+      "password": "senha123"
+    }
+
+**Parâmetros:**
+
+*   `email` (string, opcional): E-mail do usuário.
+*   `password` (string, opcional): Senha do usuário.
 
 **Resposta:**
 
--  `201 Created` com o `token`
--  `401 Unauthorized` se email ou senha estiverem incorretos
+*   `201 Created`: Login bem-sucedido, retorna o token JWT.
+    
+        {
+          "token": "seu_token_jwt_aqui"
+        }
+    
+*   `401 Unauthorized`: Se e-mail ou senha estiverem incorretos.
 
----
+* * *
 
-### 👤 Me (Usuário atual)
+### 👤 Obter Usuário Atual
 
 **GET** `/api/user/me`
 
+Retorna informações do usuário autenticado.
+
 **Headers:**
 
-```
-Authorization: Bearer JWT_TOKEN
-```
+    Authorization: Bearer JWT_TOKEN
 
 **Resposta:**
 
-```json
-{
-   "name": "João",
-   "role": "admin",
-   "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-}
-```
+    {
+      "name": "João",
+      "role": "admin",
+      "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    }
 
--  `401 Unauthorized` se token inválido ou ausente
+*   `200 OK`: Informações do usuário autenticado.
+*   `401 Unauthorized`: Se o token for inválido ou ausente.
 
----
+* * *
 
 ### ✏️ Editar Usuário
 
 **PUT** `/api/user`
 
+Atualiza as informações de um usuário existente.
+
 **Body:**
 
-```json
-{
-   "name": "Novo Nome",
-   "email": "novo@email.com",
-   "password": "novasenha",
-   "role": "admin"
-}
-```
+    {
+      "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "name": "Novo Nome",
+      "email": "novo@email.com",
+      "password": "senhaAntiga",
+      "newPassword": "novaSenhaSegura",
+      "role": "editor"
+    }
 
 **Headers:**
 
-```
-Authorization: Bearer JWT_TOKEN
-```
+    Authorization: Bearer JWT_TOKEN
+
+**Parâmetros:**
+
+*   `id` (string, **obrigatório**): ID do usuário a ser editado (formato UUID).
+*   `name` (string, opcional): Novo nome do usuário.
+*   `role` (string, opcional): Novo papel do usuário.
+*   `email` (string, opcional): Novo e-mail do usuário.
+*   `password` (string, opcional): Senha atual do usuário.
+*   `newPassword` (string, opcional): Nova senha do usuário.
 
 **Resposta:**
 
--  `201 Created` se editado com sucesso
--  `400 Bad Request` se algo falhar
--  `401 Unauthorized` se token for inválido
+*   `200 OK`: Usuário editado com sucesso.
+*   `400 Bad Request`: Se algo falhar na requisição.
+*   `401 Unauthorized`: Se o token for inválido.
 
----
+* * *
 
-## 🔧 Estrutura
+### ❌ Inativar Usuário
 
--  `Modules/`
-   -  `User/`
-      -  `UserModel.cs`
-      -  `UserService.cs`
-      -  `UserController.cs`
-      -  `UserModule.cs`
-   -  `LoginModel.cs`
-   -  `Auth/`
-      -  `AuthModel.cs`
-      -  `AuthSettings.cs`
-      -  `JwtStrategy.cs`
-   -  `News/`
-      -  `NewsModel.cs`
-      -  `NewsModule.cs`
-      -  `NewsService.cs`
-      -  `NewsController.cs`
+**DELETE** `/api/user/{id}/inactive`
 
----
+Inativa um usuário pelo seu ID.
 
-## 🛡️ Segurança
+**Parâmetros de Rota:**
 
--  JWT com validade de 30 minutos
--  `Bearer` token obrigatório nas rotas protegidas (`/me`, `/edit`)
--  Claims extraídas diretamente do token
+*   `id` (string, **obrigatório**): ID do usuário a ser inativado (formato UUID).
 
----
+**Resposta:**
 
-## 🏃 Executar o projeto
+*   `200 OK`: Usuário inativado com sucesso.
 
-```bash
-dotnet build
-dotnet run
-```
+### Categorias
 
----
+* * *
 
-## 📚 Exemplo de header
+### ✅ Criar Categoria
 
-```http
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
+**POST** `/api/category`
 
----
+Cria uma nova categoria.
 
-## 🧪 Próximos passos
+**Body:**
 
--  Controller da Noticias
--  Service da Noticias
--  Modulo da Noticias
+    {
+      "name": "Esportes"
+    }
 
----
+**Parâmetros:**
 
-## 👨‍💻 Autor
+*   `name` (string, **obrigatório**): Nome da categoria (mínimo 1, máximo 30 caracteres).
 
-Daniel
+**Resposta:**
+
+*   `200 OK`: Categoria criada com sucesso.
+
+* * *
+
+### 📚 Listar Categorias
+
+**GET** `/api/category`
+
+Lista todas as categorias.
+
+**Resposta:**
+
+*   `200 OK`: Retorna uma lista de categorias.
+
+* * *
+
+### 📰 Listar Notícias por Categoria
+
+**GET** `/api/category/{id}/news`
+
+Retorna todas as notícias associadas a uma categoria específica.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID da categoria (formato UUID).
+
+**Resposta:**
+
+*   `200 OK`: Retorna uma lista de notícias da categoria.
+
+* * *
+
+### 🔎 Obter Categoria por ID
+
+**GET** `/api/category/{id}`
+
+Retorna uma categoria específica pelo seu ID.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID da categoria (formato UUID).
+
+**Resposta:**
+
+*   `200 OK`: Retorna a categoria solicitada.
+
+* * *
+
+### ❌ Inativar Categoria
+
+**DELETE** `/api/category/{id}/inactive`
+
+Inativa uma categoria pelo seu ID.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID da categoria a ser inativada (formato UUID).
+
+**Resposta:**
+
+*   `200 OK`: Categoria inativada com sucesso.
+
+### Notícias
+
+* * *
+
+### ✅ Criar Notícia
+
+**POST** `/api/news`
+
+Cria uma nova notícia.
+
+**Body:**
+
+    {
+      "title": "Novo Título da Notícia",
+      "description": "Uma breve descrição da notícia.",
+      "thumbnail": "url_da_imagem.jpg",
+      "content": "Conteúdo completo da notícia aqui...",
+      "categoryId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    }
+
+**Parâmetros:**
+
+*   `title` (string, **obrigatório**): Título da notícia (mínimo 1, máximo 100 caracteres).
+*   `description` (string, **obrigatório**): Descrição da notícia (mínimo 1, máximo 255 caracteres).
+*   `thumbnail` (string, **obrigatório**): URL da imagem em miniatura (mínimo 1, máximo 255 caracteres).
+*   `content` (string, **obrigatório**): Conteúdo da notícia (mínimo 1, máximo 2000 caracteres).
+*   `categoryId` (string, **obrigatório**): ID da categoria à qual a notícia pertence (formato UUID).
+
+**Resposta:**
+
+*   `200 OK`: Notícia criada com sucesso.
+
+* * *
+
+### ✏️ Editar Notícia
+
+**PUT** `/api/news`
+
+Atualiza as informações de uma notícia existente.
+
+**Body:**
+
+    {
+      "id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+      "title": "Título Atualizado",
+      "description": "Descrição atualizada da notícia.",
+      "content": "Conteúdo revisado da notícia.",
+      "thumbnail": "nova_url_imagem.jpg",
+      "active": true,
+      "categoryId": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+    }
+
+**Parâmetros:**
+
+*   `id` (string, **obrigatório**): ID da notícia a ser editada (formato UUID).
+*   `title` (string, opcional): Novo título da notícia.
+*   `description` (string, opcional): Nova descrição da notícia.
+*   `content` (string, opcional): Novo conteúdo da notícia.
+*   `thumbnail` (string, opcional): Nova URL da imagem em miniatura.
+*   `active` (boolean, opcional): Status de atividade da notícia.
+*   `categoryId` (string, opcional): Novo ID da categoria.
+
+**Resposta:**
+
+*   `200 OK`: Notícia editada com sucesso.
+
+* * *
+
+### ❌ Inativar Notícia
+
+**DELETE** `/api/news/{id}/inactive`
+
+Inativa uma notícia pelo seu ID.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID da notícia a ser inativada (formato UUID).
+
+**Resposta:**
+
+*   `200 OK`: Notícia inativada com sucesso.
+
+* * *
+
+### ⏰ Listar Notícias Recentes
+
+**GET** `/api/news/recents`
+
+Retorna uma lista de notícias recentes.
+
+**Parâmetros de Consulta:**
+
+*   `take` (integer, opcional): Número de notícias a serem retornadas (padrão: 10).
+*   `skip` (integer, opcional): Número de notícias a serem puladas (padrão: 0).
+
+**Resposta:**
+
+*   `200 OK`: Retorna uma lista de notícias recentes.
+
+* * *
+
+### 🔎 Obter Notícia por ID
+
+**GET** `/api/news/{id}`
+
+Retorna uma notícia específica pelo seu ID.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID da notícia (formato UUID).
+
+**Resposta:**
+
+*   `200 OK`: Retorna a notícia solicitada.
+
+* * *
+
+### 🔎 Obter Notícia por Título
+
+**GET** `/api/news/title/{title}`
+
+Retorna notícias que correspondem a um título.
+
+**Parâmetros de Rota:**
+
+*   `title` (string, **obrigatório**): Título da notícia.
+
+**Resposta:**
+
+*   `200 OK`: Retorna uma lista de notícias com o título correspondente.
+
+### Comentários
+
+* * *
+
+### 💬 Listar Comentários de uma Notícia
+
+**GET** `/api/news/{newsId}/comments`
+
+Retorna os comentários de uma notícia específica.
+
+**Parâmetros de Rota:**
+
+*   `newsId` (string, **obrigatório**): ID da notícia (formato UUID).
+
+**Parâmetros de Consulta:**
+
+*   `skip` (integer, opcional): Número de comentários a serem pulados (padrão: 0).
+*   `take` (integer, opcional): Número de comentários a serem retornados (padrão: 10).
+
+**Resposta:**
+
+*   `200 OK`: Retorna uma lista de comentários.
+
+* * *
+
+### ✍️ Criar Comentário em uma Notícia
+
+**POST** `/api/news/{newsId}/comments`
+
+Cria um novo comentário para uma notícia.
+
+**Parâmetros de Rota:**
+
+*   `newsId` (string, **obrigatório**): ID da notícia (formato UUID).
+
+**Body:**
+
+    {
+      "content": "Este é um comentário sobre a notícia."
+    }
+
+**Parâmetros:**
+
+*   `content` (string, **obrigatório**): Conteúdo do comentário.
+
+**Resposta:**
+
+*   `200 OK`: Comentário criado com sucesso.
+
+* * *
+
+### ↩️ Responder a um Comentário
+
+**POST** `/api/news/{newsId}/comments/{id}/replies`
+
+Cria uma resposta a um comentário existente em uma notícia.
+
+**Parâmetros de Rota:**
+
+*   `newsId` (string, **obrigatório**): ID da notícia (formato UUID).
+*   `id` (string, **obrigatório**): ID do comentário ao qual responder (formato UUID).
+
+**Body:**
+
+    {
+      "content": "Esta é uma resposta ao comentário."
+    }
+
+**Parâmetros:**
+
+*   `content` (string, **obrigatório**): Conteúdo da resposta.
+
+**Resposta:**
+
+*   `200 OK`: Resposta criada com sucesso.
+
+* * *
+
+### 🗑️ Inativar Comentário
+
+**DELETE** `/api/news/{newsId}/comments/{id}/inactive`
+
+Inativa um comentário específico de uma notícia.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID do comentário a ser inativado (formato UUID).
+*   `newsId` (string, **obrigatório**): ID da notícia à qual o comentário pertence.
+
+**Resposta:**
+
+*   `200 OK`: Comentário inativado com sucesso.
+
+* * *
+
+### 👍 Curtir Comentário
+
+**POST** `/api/news/{newsId}/comments/{id}/like`
+
+Adiciona um "curtir" a um comentário.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID do comentário a ser curtido (formato UUID).
+*   `newsId` (string, **obrigatório**): ID da notícia à qual o comentário pertence.
+
+**Resposta:**
+
+*   `200 OK`: Curtida registrada com sucesso.
+
+* * *
+
+### 👎 Descurtir Comentário
+
+**POST** `/api/news/{newsId}/comments/{id}/dislike`
+
+Adiciona um "não curtir" a um comentário.
+
+**Parâmetros de Rota:**
+
+*   `id` (string, **obrigatório**): ID do comentário a ser descurtido (formato UUID).
+*   `newsId` (string, **obrigatório**): ID da notícia à qual o comentário pertence.
+
+**Resposta:**
+
+*   `200 OK`: Descurtida registrada com sucesso.
+
+* * *
+
+🔧 Estrutura do Projeto
+-----------------------
+
+    .
+    ├── Modules/
+    │   ├── User/
+    │   │   ├── UserModel.cs
+    │   │   ├── UserService.cs
+    │   │   ├── UserController.cs
+    │   │   └── UserModule.cs
+    │   ├── LoginModel.cs (Isso provavelmente deve ser um DTO ou Schema em vez de um modelo diretamente na raiz de Modules)
+    │   ├── Auth/
+    │   │   ├── AuthModel.cs
+    │   │   ├── AuthSettings.cs
+    │   │   └── JwtStrategy.cs
+    │   ├── News/
+    │   │   ├── NewsModel.cs
+    │   │   ├── NewsModule.cs
+    │   │   ├── NewsService.cs
+    │   │   └── NewsController.cs
+    │   ├── Category/
+    │   │   ├── CategoryBodyModelDto.cs (Assumindo que este seja um DTO para criar categorias)
+    │   │   ├── CategoryModule.cs
+    │   │   ├── CategoryService.cs
+    │   │   └── CategoryController.cs
+    │   └── Comments/
+    │       ├── CreateCommentDto.cs
+    │       ├── CommentsModule.cs
+    │       ├── CommentsService.cs
+    │       └── CommentsController.cs
+    ├── appsettings.json
+    └── ... (outros arquivos do projeto)
+
+* * *
+
+🛡️ Segurança
+-------------
+
+*   **JWT (JSON Web Tokens)**: A autenticação é realizada via tokens JWT.
+*   **Validade do Token**: Os tokens têm uma validade de 30 minutos.
+*   **Rotas Protegidas**: Endpoints que exigem autenticação (ex: `/api/user/me`, `/api/user`) necessitam de um `Bearer Token` no cabeçalho `Authorization`.
+*   **Claims**: As informações do usuário (claims) são extraídas diretamente do token JWT.
+
+* * *
+
+🏃 Como Executar o Projeto
+--------------------------
+
+Para compilar e executar o projeto, utilize os seguintes comandos no terminal na raiz do projeto:
+
+    dotnet build
+    dotnet run
+
+* * *
+
+📚 Exemplo de Header de Autorização
+-----------------------------------
+
+Ao realizar requisições para endpoints protegidos, inclua o cabeçalho `Authorization` com o token JWT no formato `Bearer {token}`:
+
+    Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+* * *
+
+👨‍💻 Autor
+-----------
+
+Daniel Guirra
+
+*   **Email**: daniel.guirra777@gmail.com
+*   **Licença**: [Licença MIT](https://opensource.org/license/mit)
