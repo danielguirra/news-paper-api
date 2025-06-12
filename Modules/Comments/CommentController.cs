@@ -10,10 +10,11 @@ namespace Modules.Comments.Controller;
 
 [ApiController]
 [Route("api/news/{newsId}/comments")]
-[EnableRateLimiting("unauthenticatedIp")]
+[EnableRateLimiting("authenticated")]
 public class CommentsController(CommentsService service) : ControllerBase
 {
     [HttpGet]
+    [EnableRateLimiting("unauthenticatedIp")]
     public async Task<IActionResult> List(Guid newsId, int skip = 0, int take = 10)
     {
         List<CommentNewsDto> comments = await service.ListCommentsByNewsId(newsId, take, skip);
