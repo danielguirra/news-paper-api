@@ -78,8 +78,8 @@ Autentica um usuário e retorna um token JWT.
 
 **Parâmetros:**
 
-*   `email` (string, opcional): E-mail do usuário.
-*   `password` (string, opcional): Senha do usuário.
+*   `email` (string, **obrigatório**): E-mail do usuário.
+*   `password` (string, **obrigatório**): Senha do usuário.
 
 **Resposta:**
 
@@ -349,7 +349,17 @@ Retorna uma lista de notícias recentes.
 
 **Resposta:**
 
-*   `200 OK`: Retorna uma lista de notícias recentes.
+        
+        {
+        "title": "Novas medidas são anunciadas para o setor educacional",
+        "description": "Governo apresenta pacote de investimentos para escolas públicas",
+        "thumbnail": "https://intrinseca.com.br/wp-content/uploads/2016/08/educa%C3%A7%C3%A3o_2-768x488.jpg",
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "active": true,
+        "createdAt": "2025-06-02T15:05:09.49138Z"
+        },
+        ...
+    
 
 * * *
 
@@ -365,7 +375,25 @@ Retorna uma notícia específica pelo seu ID.
 
 **Resposta:**
 
-*   `200 OK`: Retorna a notícia solicitada.
+    {
+    "title": "Novas medidas são anunciadas para o setor educacional",
+    "description": "Governo apresenta pacote de investimentos para escolas públicas",
+    "content": "O Ministério da Educação divulgou nesta segunda-feira um novo pacote de medidas que visa fortalecer a infraestrutura das escolas públicas em todo o país. Entre as ações previstas estão a construção de novas unidades, contratação de professores e modernização de equipamentos tecnológicos.",
+    "thumbnail": "https://intrinseca.com.br/wp-content/uploads/2016/08/educa%C3%A7%C3%A3o_2-768x488.jpg",
+    "category": {
+        "id": "55555555-5555-5555-5555-555555555555",
+        "name": "Economia"
+    },
+    "author": {
+        "name": "Danies",
+        "role": "user",
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    },
+    "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "active": true,
+    "createdAt": "2025-06-02T15:05:09.49138Z",
+    "updatedAt": "2025-06-02T15:05:09.49138Z"
+    }
 
 * * *
 
@@ -373,15 +401,24 @@ Retorna uma notícia específica pelo seu ID.
 
 **GET** `/api/news/title/{title}`
 
-Retorna notícias que correspondem a um título.
-
 **Parâmetros de Rota:**
 
 *   `title` (string, **obrigatório**): Título da notícia.
 
-**Resposta:**
+Retorna uma lista que correspondem a um título.
 
-*   `200 OK`: Retorna uma lista de notícias com o título correspondente.
+**Resposta*** **Baseado no title** *medidas*
+
+
+    {
+        "title": "Novas medidas são anunciadas para o setor educacional",
+        "description": "Governo apresenta pacote de investimentos para escolas públicas",
+        "thumbnail": "https://intrinseca.com.br/wp-content/uploads/2016/08/educa%C3%A7%C3%A3o_2-768x488.jpg",
+        "id": "3b5ccb2b-150b-4a85-a167-9eda414db3c1",
+        "active": true,
+        "createdAt": "2025-06-02T15:05:09.49138Z"
+    }
+    
 
 ### Comentários
 
@@ -404,7 +441,27 @@ Retorna os comentários de uma notícia específica.
 
 **Resposta:**
 
-*   `200 OK`: Retorna uma lista de comentários.
+     {
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "content": "Faiz U L MESMO UNGA BUNGA Lulistas",
+        "authorName": "Danies",
+        "replies": [
+            {
+                "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "content": "Faiz U L MESMO UNGA BUNGA Resposta",
+                "authorName": "Daniek",
+                "replies": null,
+                "createdAt": "2025-06-10T00:47:28.0967Z",
+                "updatedAt": "2025-06-10T00:47:28.0967Z",
+                "likes": 0,
+                "disLikes": 0
+            }
+        ],
+        "createdAt": "2025-06-03T21:49:47.430172Z",
+        "updatedAt": "2025-06-03T21:55:20.880794Z",
+        "likes": 1,
+        "disLikes": 0
+    },
 
 * * *
 
