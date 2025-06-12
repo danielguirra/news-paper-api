@@ -518,27 +518,30 @@ Adiciona um "não curtir" a um comentário.
     .
     ├── Modules/
     │   ├── User/
+    │   │   ├── UserDto.cs
     │   │   ├── UserModel.cs
     │   │   ├── UserService.cs
     │   │   ├── UserController.cs
     │   │   └── UserModule.cs
-    │   ├── LoginModel.cs (Isso provavelmente deve ser um DTO ou Schema em vez de um modelo diretamente na raiz de Modules)
     │   ├── Auth/
     │   │   ├── AuthModel.cs
     │   │   ├── AuthSettings.cs
     │   │   └── JwtStrategy.cs
     │   ├── News/
-    │   │   ├── NewsModel.cs
+    │   │   ├── NewsDto.cs
+    |   |   ├── NewsModel.cs
     │   │   ├── NewsModule.cs
     │   │   ├── NewsService.cs
     │   │   └── NewsController.cs
     │   ├── Category/
-    │   │   ├── CategoryBodyModelDto.cs (Assumindo que este seja um DTO para criar categorias)
+    |   |   ├── CategoryDto.cs 
+    |   |   ├── CategoryModel.cs
     │   │   ├── CategoryModule.cs
     │   │   ├── CategoryService.cs
     │   │   └── CategoryController.cs
     │   └── Comments/
-    │       ├── CreateCommentDto.cs
+    │       ├── CommentsDto.cs
+    |       ├── CommentsModel.cs
     │       ├── CommentsModule.cs
     │       ├── CommentsService.cs
     │       └── CommentsController.cs
