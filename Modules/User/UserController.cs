@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Modules.Auth;
 using Modules.Auth.Model;
 using Modules.Auth.UserContext;
@@ -11,6 +12,7 @@ namespace Modules.User.Controller;
 
 [ApiController]
 [Route("api/user")]
+[EnableRateLimiting("unauthenticatedIp")]
 public class UserController(UserService service) : ControllerBase
 {
     [HttpPost]

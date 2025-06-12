@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Modules.Auth;
 using Modules.Auth.UserContext;
 using Modules.Comments.Dto;
@@ -9,6 +10,7 @@ namespace Modules.Comments.Controller;
 
 [ApiController]
 [Route("api/news/{newsId}/comments")]
+[EnableRateLimiting("unauthenticatedIp")]
 public class CommentsController(CommentsService service) : ControllerBase
 {
     [HttpGet]

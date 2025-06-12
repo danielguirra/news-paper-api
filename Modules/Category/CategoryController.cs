@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Modules.Auth;
 using Modules.Category.Dto;
 using Modules.Category.Model;
@@ -8,6 +9,7 @@ namespace Modules.Category.Controller;
 
 [ApiController]
 [Route("/api/category")]
+[EnableRateLimiting("unauthenticatedIp")]
 public class CategoryController(CategoryService categoryService) : ControllerBase
 {
     [HttpPost]
